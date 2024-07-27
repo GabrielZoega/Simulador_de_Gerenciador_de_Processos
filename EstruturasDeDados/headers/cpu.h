@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "../Simulador_de_Gerenciador_de_Processos/ProcessoSimulado/headers/processoSimulado.h"
 
 typedef struct CPU{
     int *PC_Atual; //valor atual de contador de programa,aponta para um endereço de memória
-    //Programas **VetorDeProgramas; //Vetor de Programas
-    int **MemoriaSimulada; //??
-    int *program_counter; //PC,apontna para um endereço de memória
+    Processo **VetorDeProgramas; //Vetor de Programas
+    int **MemoriaSimulada; //Conjunto de endereços inteiros
+    int idprocesso; //id do processo em execução da cpu
     int FatiaQuantum; // deve guardar o número de unidades de tempo usadas
 
 }CPU;
 
-void inicializaCPU();
+CPU* inicializaCPU();
+
+void AlocarProcesso(CPU *cpu, Processo *novoprocesso);
