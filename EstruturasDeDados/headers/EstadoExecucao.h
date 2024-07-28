@@ -1,6 +1,6 @@
 #include "stdlib.h"
 #include "stdio.h"
 
-typedef struct EstadoBloqueado {
+typedef struct EstadoExecucao {
     int processoExec;
-} EstadoBloqueado;
+} EstadoExecucao;

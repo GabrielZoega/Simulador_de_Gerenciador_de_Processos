@@ -1,6 +1,8 @@
 #ifndef PROCESSOSIMULADO_H
 #define PROCESSOSIMULADO_H
 
+#define TAM_INST 40 //tamanho maximo da linha de instrucao
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,7 +21,8 @@ typedef struct processo{
     int inicioTempo;
     int tempoUsadoCPU;
     int *memoriaDoProcesso; //simula a memoria do processo simulado, eh feito um malloc com a instrucao N
-    int tempoBloqueado; // O Gerenciador de processos irá diminuir esse int a cada unidade de tempo, quando o valor chegar a 0 significará que o processo deve ir para o estado pronto.
+    int tempoBloqueado; // O Gerenciador de processos ira diminuir esse int a cada unidade de tempo, quando o valor chegar a 0 significará que o processo deve ir para o estado pronto.
+    char** vetorPrograma;
 }Processo;
 
 void instrucaoN(Processo *processo, int n);

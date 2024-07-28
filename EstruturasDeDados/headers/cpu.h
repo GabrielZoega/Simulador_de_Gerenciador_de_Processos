@@ -3,7 +3,7 @@
 #include "../Simulador_de_Gerenciador_de_Processos/ProcessoSimulado/headers/processoSimulado.h"
 
 typedef struct CPU{
-    int *PC_Atual; //valor atual de contador de programa,aponta para um endereço de memória
+    int PC_Atual; //valor atual de contador de programa,aponta para um endereço de memória
     Processo **VetorDeProgramas; //Vetor de Programas
     int **MemoriaSimulada; //Conjunto de endereços inteiros
     int idprocesso; //id do processo em execução da cpu

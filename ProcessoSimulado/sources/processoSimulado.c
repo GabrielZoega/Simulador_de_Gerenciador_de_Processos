@@ -45,57 +45,29 @@ void instrucaoR(Processo *processo, char *nome_do_arquivo){
 
 void lerInstrucoes(Processo *processo, char *pathProcesso){
     FILE *arquivo_de_processo;
-    char linhaDeInstrucao[40];
-    char instrucao;
-    int x = 0, n = 0;
-    char nome_do_arquivo[30];
+    char linhaDeInstrucao[TAM_INST];
+
+    int numIntrucoes = 0;
 
     if ((arquivo_de_processo = fopen(pathProcesso, "r")) == NULL){
-
+        printf("Nao foi possivel ler o arquivo!");
     }else{
         while (!feof(arquivo_de_processo)){
-            fgets(linhaDeInstrucao, 40, arquivo_de_processo);
-            sscanf(linhaDeInstrucao, "%c ", &instrucao);
+            fgets(linhaDeInstrucao, TAM_INST, arquivo_de_processo);
+            numIntrucoes++;           
+        }
+    }   
+    fclose(arquivo_de_processo);
 
-            switch (instrucao){
-            case 'N':
-                sscanf(linhaDeInstrucao, "%c %d", &instrucao, &n);
-                instrucaoN(processo, n);
-                break;
-            case 'D':
-                sscanf(linhaDeInstrucao, "%c %d", &instrucao, &x);
-                instrucaoD(processo, x);
-                break;
-            case 'V':
-                sscanf(linhaDeInstrucao, "%c %d %d", &instrucao, &x, &n);
-                instrucaoV(processo, x, n);
-                break;
-            case 'A':
-                sscanf(linhaDeInstrucao, "%c %d %d", &instrucao, &x, &n);
-                instrucaoA(processo, x, n);
-                break;
-            case 'S':
-                sscanf(linhaDeInstrucao, "%c %d %d", &instrucao, &x, &n);
-                instrucaoS(processo, x, n);
-                break;
-            case 'B':
-                sscanf(linhaDeInstrucao, "%c %d", &instrucao, &n);
-                instrucaoB(processo, n);
-                break;
-            case 'T':
-                instrucaoT(processo);
-                break;
-            case 'F':
-                sscanf(linhaDeInstrucao, "%c %d", &instrucao, &n);
-                instrucaoF(processo, n);
-                break;
-            case 'R':
-                sscanf(linhaDeInstrucao, "%c %s", &instrucao, nome_do_arquivo);
-                instrucaoR(processo, nome_do_arquivo);
-                break;
-            default:
-                break;
-            }
+    processo->vetorPrograma = (char**) malloc(sizeof(char)*numIntrucoes*TAM_INST);
+
+    if ((arquivo_de_processo = fopen(pathProcesso, "r")) == NULL){
+        printf("Nao foi possivel ler o arquivo!");
+
+    }else{
+        for(int i = 0; i < numIntrucoes; i++){
+            fgets(linhaDeInstrucao, TAM_INST, arquivo_de_processo);
+            strcpy(processo->vetorPrograma[i], linhaDeInstrucao);
         }
     }   
     fclose(arquivo_de_processo);
