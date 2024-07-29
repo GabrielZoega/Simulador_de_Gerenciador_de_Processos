@@ -1,4 +1,4 @@
-#include "../Simulador_de_Gerenciador_de_Processos/EstruturasDeDados/headers/cpu.h"
+#include "../headers/cpu.h"
 
 CPU* inicializaCPU(){
     //alocações de memória para a struct CPU

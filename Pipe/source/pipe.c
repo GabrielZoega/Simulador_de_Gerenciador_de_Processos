@@ -1,4 +1,4 @@
-#include "../Simulador_de_Gerenciador_de_Processos/Pipe/headers/pipe.h"
+#include "../headers/pipe.h"
 
 void EscreverPipe(int fd,char caractere){
     //escrever dados no pipe
