@@ -1,11 +1,12 @@
 #ifndef GERENCIADORPROCESSOS_H
 #define GERENCIADORPROCESSOS_H
+
 #include "cpu.h"
 #include "EstadoBloqueado.h"
 #include "EstadoExecucao.h"
 #include "EstadoPronto.h"
 #include "tabelaDeProcessos.h"
-#include "../../ProcessoSimulado/headers/processoSimulado.h"
+#include "processoSimulado.h"
 
 typedef struct gerenciadorProcesso{
     int Tempo;
@@ -19,7 +20,5 @@ typedef struct gerenciadorProcesso{
 void gerenciarProcesso();
 void init(Processo *processoSimulado);
 void executaIntrucao(Processo *processoSimulado, char *linhaDeInstrucao);
-
-
 
 #endif

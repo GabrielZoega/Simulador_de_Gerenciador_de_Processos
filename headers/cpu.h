@@ -1,6 +1,9 @@
+#ifndef CPU_H
+#define CPU_H
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Simulador_de_Gerenciador_de_Processos/ProcessoSimulado/headers/processoSimulado.h"
+#include "processoSimulado.h"
 
 typedef struct CPU{
     int PC_Atual; //valor atual de contador de programa,aponta para um endereço de memória
@@ -14,3 +17,5 @@ typedef struct CPU{
 CPU* inicializaCPU();
 
 void AlocarProcesso(CPU *cpu, Processo *novoprocesso);
+
+#endif

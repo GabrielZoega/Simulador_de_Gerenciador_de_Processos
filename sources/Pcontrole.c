@@ -1,4 +1,4 @@
-#include "../Simulador_de_Gerenciador_de_Processos/ProcessoControle/headers/Pcontrole.h"
+#include "../headers/Pcontrole.h"
 
 char Pcontrole(FILE *ptr,int opcao,int LinhaLeitura){
     //opcao = 1, ler do terminal

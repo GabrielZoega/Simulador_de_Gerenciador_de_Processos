@@ -1,3 +1,6 @@
+#ifndef FILA_H
+#define FILA_H
+
 #include "stdlib.h"
 #include "stdio.h"
 
@@ -18,3 +21,5 @@ void FFVazia(TFila* pFila);
 int FEhVazia(TFila* pFila);
 int FEnfileira(TFila* pFila, int indice);
 int FDesenfileira(TFila* pFila);
+
+#endif

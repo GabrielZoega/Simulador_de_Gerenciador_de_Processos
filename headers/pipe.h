@@ -1,3 +1,6 @@
+#ifndef PIPE_H
+#define PIPE_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> //Biblioteca para o uso do pipe()
@@ -10,3 +13,5 @@
 //pipe será um buffer que o processo filho & pai compartilham
 void EscreverPipe(int fd,char caractere);
 char LerPipe(int fd);
+
+#endif

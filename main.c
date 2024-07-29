@@ -1,4 +1,4 @@
-#include "EstruturasDeDados/headers/processoSimulado.h"
+#include "headers/processoSimulado.h"
 
 
 int main(){

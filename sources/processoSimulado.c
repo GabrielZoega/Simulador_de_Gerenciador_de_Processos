@@ -1,4 +1,4 @@
-#include "../Simulador_de_Gerenciador_de_Processos/ProcessoSimulado/headers/processoSimulado.h"
+#include "../headers/processoSimulado.h"
 
 void instrucaoN(Processo *processo, int n){
     processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * n);
