@@ -1,2 +1,2 @@
 all:
-	gcc main.c EstruturasDeDados/headers/processoSimulado.h EstruturasDeDados/sources/processoSimulado.c -o runProcesso
+	gcc main.c headers/processoSimulado.h sources/processoSimulado.c headers/pipe.h sources/pipe.c -o runProcesso

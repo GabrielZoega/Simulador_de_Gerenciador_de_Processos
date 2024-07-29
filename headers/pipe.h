@@ -11,7 +11,7 @@
 //fd = 0 será o fd (descritor de arquivo) para leitura
 //fd = 1 será para escrita
 //pipe será um buffer que o processo filho & pai compartilham
-void EscreverPipe(int fd,char caractere);
-char LerPipe(int fd);
+void EscreverPipe(int fd, char *caractere);
+void LerPipe(int fd, char *caractere);
 
 #endif
