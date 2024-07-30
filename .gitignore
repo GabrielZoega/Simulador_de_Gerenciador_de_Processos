@@ -1,3 +1,8 @@
+.cproject
+.settings
 .vscode
 .project
-output
+/output/
+/Includes/
+/Debug/
+/Binaries/

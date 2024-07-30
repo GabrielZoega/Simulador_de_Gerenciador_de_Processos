@@ -1,8 +1,8 @@
 #include "../headers/gerenciadorProcessos.h"
 
 void gerenciarProcesso(int *fd){
-    // Processo processoSimulado;
-    // init(&processoSimulado);
+    Processo processoSimulado;
+    init(&processoSimulado);
 
     char comandoEntrada;
 
@@ -21,7 +21,7 @@ void gerenciarProcesso(int *fd){
 
 void init(Processo *processoSimulado){  
     processoSimulado->idProcesso = 0;
-    processoSimulado->idProcessoPai = NULL;
+    processoSimulado->idProcessoPai = -1;
     processoSimulado->inicioTempo = 0;
     processoSimulado->estado = EM_EXECUCAO;
     processoSimulado->prioridade = 0;

@@ -14,7 +14,6 @@ int main(){
 
     int fd[2]; // File descriptors pro Pipe
     int pid; // Variavel para armazenar o pid
-    int status;
     int pipeRetorno = pipe(fd);
     int opcao;
     

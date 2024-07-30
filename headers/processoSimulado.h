@@ -16,7 +16,7 @@ typedef enum Estados_de_processos{
 typedef struct processo{
     int idProcesso;
     int idProcessoPai;
-    int* programCounter;
+    int programCounter;
     int prioridade;
     Estado estado;
     int inicioTempo;

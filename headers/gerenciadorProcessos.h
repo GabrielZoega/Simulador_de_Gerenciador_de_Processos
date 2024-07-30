@@ -1,7 +1,7 @@
 #ifndef GERENCIADORPROCESSOS_H
 #define GERENCIADORPROCESSOS_H
 
-#define INIT "../Documentos/init"
+#define INIT "Documentos/init"
 
 #include "cpu.h"
 #include "EstadoBloqueado.h"
