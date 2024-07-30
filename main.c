@@ -1,3 +1,5 @@
+#include "headers/Pcontrole.h"
+#include "headers/gerenciadorProcessos.h"
 #include "headers/processoSimulado.h"
 #include "headers/pipe.h"
 
@@ -5,16 +7,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-#define BUFFER 256
+int main(){
 
-int main(void)
-{
     int fd[2]; // File descriptors pro Pipe
-    int pid; // Variável para armazenar o pid
+    int pid; // Variavel para armazenar o pid
+    int status;
     int pipeRetorno = pipe(fd);
-
     int opcao;
     
     printf("Escolha a forma de entrar com os comandos do processo controle:\n\n");
@@ -24,7 +25,12 @@ int main(void)
     printf("Opcao escolhida: ");
     scanf("%d", &opcao);
     getchar();
-    
+
+    if (opcao != 1 && opcao != 2){
+        printf("Programa encerrado.\n\n");
+        return 0;
+    }
+
     // Criando nosso Pipe
     if(pipeRetorno >= 0){
        
@@ -36,43 +42,32 @@ int main(void)
             exit(1);
         }
 
+        // leitura pelo terminal
         if (opcao == 1){
-            while(1){                
-                char comandoSaida;
-                scanf("%c", &comandoSaida);
-                // Processo Pai (Processo Controle)
-                if (pid > 0){
-                    // fecha a leitura do pipe
-                    close(fd[0]);
-
-                    // Escrevendo a string no pipe
-                    EscreverPipe(fd[1], &comandoSaida);
-                    // write(fd[1], str, sizeof(str) + 1);
-                    exit(0);
-                }
+            
+            // Processo Pai (Processo Controle)
+            if (pid > 0){
+                Pcontrole(NULL, opcao, fd);
                 
-                // Processo Filho (Processo Gerenciador de Processos)
-                else{
-                    char comandoEntrada;
-
-                    // fecha a entrada de escrita do pipe
-                    close(fd[1]);
-
-                    // Lendo o que foi escrito no pipe, e armazenando isso em 'str_recebida'
-                    LerPipe(fd[0], &comandoEntrada);
-                    // read(fd[0], &comando, sizeof(comando));
-                    exit(0);
-                }
-
-                if(comandoSaida == 'M') break;
+            // Processo Filho (Processo Gerenciador de Processos)
+            }else{
+                gerenciarProcesso(fd);                
             }
+                
+        // leitura por arquivo
         }else if (opcao == 2){
 
-        }else{
-            printf("Programa encerrado.\n\n");
-            return 0;
-        }
+            // Processo Pai (Processo Controle)
+            if (pid > 0){
 
+                FILE *arq;
+                Pcontrole(arq, opcao, fd);
+                
+            // Processo Filho (Processo Gerenciador de Processos)
+            }else{
+                gerenciarProcesso(fd);
+            }
+        }
     }else{
         perror("pipe") ;
         return -1 ;

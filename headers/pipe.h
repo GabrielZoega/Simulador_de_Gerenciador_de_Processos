@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <unistd.h> //Biblioteca para o uso do pipe()
 #include <sys/types.h> // Biblioteca para o uso do fork()
-#define TAMANHOPIPE 50 //Tamanho do buffer
  
 //Implementação do Pipe segundo: https://acervolima.com/pipe-chamada-de-sistema/
 //fd = 0 será o fd (descritor de arquivo) para leitura

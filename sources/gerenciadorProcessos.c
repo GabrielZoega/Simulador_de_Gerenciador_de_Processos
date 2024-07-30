@@ -1,8 +1,22 @@
 #include "../headers/gerenciadorProcessos.h"
 
-void gerenciarProcesso(){
-    Processo processoSimulado;
-    init(&processoSimulado);
+void gerenciarProcesso(int *fd){
+    // Processo processoSimulado;
+    // init(&processoSimulado);
+
+    char comandoEntrada;
+
+    // fecha a entrada de escrita do pipe
+    close(fd[1]);
+
+    while(1){
+        // lendo o que foi escrito no pipe, e armazenando isso em comandoEntrada
+        LerPipe(fd[0], &comandoEntrada);
+
+        printf("Entrou no filho: %c\n", comandoEntrada);
+        
+        if(comandoEntrada == 'M') break;
+    }
 }
 
 void init(Processo *processoSimulado){  
@@ -15,7 +29,7 @@ void init(Processo *processoSimulado){
     processoSimulado->inicioTempo = 0;
     processoSimulado->tempoUsadoCPU = 0;
     processoSimulado->tempoBloqueado = 0;
-    
+    lerInstrucoes(processoSimulado, INIT);
 }
 
 void executaIntrucao(Processo *processoSimulado, char *linhaDeInstrucao){

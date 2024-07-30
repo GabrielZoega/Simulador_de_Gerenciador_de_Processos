@@ -3,9 +3,9 @@
 CPU* inicializaCPU(){
     //alocações de memória para a struct CPU
     CPU* cpu = (CPU*) malloc(sizeof(CPU));
-    cpu->PC_Atual = (int*) malloc(sizeof(CPU));
-    cpu->MemoriaSimulada = (Processo**) malloc(sizeof(Processo));
-    cpu->MemoriaSimulada = (int**) malloc(sizeof(CPU));
+    cpu->PC_Atual = 0;
+    cpu->MemoriaSimulada = (int*) malloc(sizeof(int));
+    // cpu->MemoriaSimulada = (int**) malloc(sizeof(CPU));
     cpu->FatiaQuantum = 0;
     return cpu;
 }

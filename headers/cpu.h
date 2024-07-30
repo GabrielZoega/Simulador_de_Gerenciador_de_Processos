@@ -8,7 +8,7 @@
 typedef struct CPU{
     int PC_Atual; //valor atual de contador de programa,aponta para um endereço de memória
     Processo **VetorDeProgramas; //Vetor de Programas
-    int **MemoriaSimulada; //Conjunto de endereços inteiros
+    int *MemoriaSimulada; //Conjunto de endereços inteiros
     int idprocesso; //id do processo em execução da cpu
     int FatiaQuantum; // deve guardar o número de unidades de tempo usadas
 

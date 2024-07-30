@@ -1,2 +1,10 @@
+PROJ_NAME=runSimGerenciadorProcessos
+
+HEADERS=$(wildcard headers/*.h)
+
+SOURCES=$(wildcard sources/*.c)
+
+MAIN=main.c
+
 all:
-	gcc main.c headers/processoSimulado.h sources/processoSimulado.c headers/pipe.h sources/pipe.c -o runProcesso
+	gcc $(MAIN) $(HEADERS) $(SOURCES) -o $(PROJ_NAME)
