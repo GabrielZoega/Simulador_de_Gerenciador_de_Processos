@@ -20,7 +20,7 @@ void Pcontrole(FILE *arq, int opcao, int *fd){
 
             // Escrevendo a string no pipe
             EscreverPipe(fd[1], &comandoSaida);
-            if(comandoSaida == 'M') break;
+            if((comandoSaida == 'M') | ((comandoSaida != 'U') & (comandoSaida != 'I'))) break;
         }
 
     }else if(opcao == 2){

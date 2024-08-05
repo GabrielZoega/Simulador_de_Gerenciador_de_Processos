@@ -1,6 +1,9 @@
 #include "../headers/gerenciadorProcessos.h"
 
 void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso){
+    FFVazia(&(gerenciadorProcesso->estadoBloqueado.processosB));
+    FFVazia(&(gerenciadorProcesso->estadoPronto.processosP));
+    gerenciadorProcesso->estadoExecucao.processoExec =  0;
     Processo processoSimulado;
     int IDS = 0;
     init(&processoSimulado, INIT, &IDS);
@@ -27,6 +30,11 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso){
         }else if(comandoEntrada == 'I'){
             
         }else if(comandoEntrada == 'M'){
+            break;
+        }
+        else{
+            printf("Um comando invalido foi digitado!\n");
+            printf("Programa Encerrado!\n");
             break;
         }
     }
@@ -86,6 +94,7 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS){
         break;
     case 'T':
         instrucaoT(gerenciadorProcesso);
+
         printf("ENTROU T\n");
         break;
     case 'F':
@@ -130,13 +139,17 @@ void instrucaoS(CPU *Cpu, int x, int n){
 }
 
 void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n){
-     gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].estado = BLOQUEADO;
-     gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].tempoBloqueado = n;
+    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec].estado = BLOQUEADO;
+    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec].tempoBloqueado = n;
+    FEnfileira(&(gerenciadorProcesso->estadoBloqueado.processosB), gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec].idProcesso);
+    trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
     //printf("B %d\n", n);
 }
 
 void instrucaoT(GerenciadorProcesso* gerenciadorProcesso){
-    //printf("T\n");
+	free(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].memoriaDoProcesso);
+	free(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].vetorPrograma);
+	trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
 void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS){
@@ -155,24 +168,28 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS){
     novoProcesso.tempoBloqueado = 0;
 
     gerenciadorProcesso->Cpu.PC_Atual = n + 1;
-
+    
+    FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec].idProcesso);
     trocaDeContexto(gerenciadorProcesso, &novoProcesso);
 }
 
 void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS){
     Processo novoProcesso;
     init(&novoProcesso, nome_do_arquivo, IDS);
+    FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec].idProcesso);
     trocaDeContexto(gerenciadorProcesso, &novoProcesso);
-    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso] = novoProcesso; // não pode ser aqui
+    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec] = novoProcesso;
 }
 
 void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado){
+	gerenciadorProcesso->estadoExecucao.processoExec = processoEscalonado->idProcesso;
     gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].programCounter = gerenciadorProcesso->Cpu.PC_Atual;
     gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].tempoUsadoCPU = gerenciadorProcesso->Cpu.FatiaQuantum;
     gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso].tamanhoMemoriaDoProcesso = gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada;
-    alocarMemoriaDoProcesso(&(gerenciadorProcesso->Cpu), &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->Cpu.idprocesso]));
+    alocarMemoriaDoProcesso(&(gerenciadorProcesso->Cpu), &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]));
     free(gerenciadorProcesso->Cpu.VetorDeProgramas);
 
+    gerenciadorProcesso->estadoExecucao.processoExec = processoEscalonado->idProcesso;
     AlocarProcesso(&gerenciadorProcesso->Cpu, processoEscalonado);
     gerenciadorProcesso->Cpu.PC_Atual--;
 }
