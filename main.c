@@ -1,17 +1,10 @@
 #include "headers/Pcontrole.h"
 #include "headers/gerenciadorProcessos.h"
-#include "headers/processoSimulado.h"
-#include "headers/pipe.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
 
 int main(){
-
+    GerenciadorProcesso gerenciadorProcesso;
+    inicializaCPU(&(gerenciadorProcesso.Cpu));
     int fd[2]; // File descriptors pro Pipe
     int pid; // Variavel para armazenar o pid
     int pipeRetorno = pipe(fd);
@@ -50,7 +43,7 @@ int main(){
                 
             // Processo Filho (Processo Gerenciador de Processos)
             }else{
-                gerenciarProcesso(fd);                
+                gerenciarProcesso(fd, &gerenciadorProcesso);                
             }
                 
         // leitura por arquivo
@@ -64,7 +57,7 @@ int main(){
                 
             // Processo Filho (Processo Gerenciador de Processos)
             }else{
-                gerenciarProcesso(fd);
+                gerenciarProcesso(fd, &gerenciadorProcesso);
             }
         }
     }else{

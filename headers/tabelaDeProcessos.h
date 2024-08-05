@@ -7,7 +7,7 @@
 
 // A tabela de Processos será um vetor do tipo processo
 typedef struct tabelaDeProcessos {
-    Processo tabelaProcessos[50];
+    Processo processos[50];
 }TabelaDeProcessos;
 
 #endif

@@ -24,17 +24,8 @@ typedef struct processo{
     int *memoriaDoProcesso; //simula a memoria do processo simulado, eh feito um malloc com a instrucao N
     int tempoBloqueado; // O Gerenciador de processos ira diminuir esse int a cada unidade de tempo, quando o valor chegar a 0 significará que o processo deve ir para o estado pronto.
     char** vetorPrograma;
+    int tamanhoMemoriaDoProcesso;
 }Processo;
-
-void instrucaoN(Processo *processo, int n);
-void instrucaoD(Processo *processo, int x);
-void instrucaoV(Processo *processo, int x, int n);
-void instrucaoA(Processo *processo, int x, int n);
-void instrucaoS(Processo *processo, int x, int n);
-void instrucaoB(Processo *processo, int n);
-void instrucaoT(Processo *processo);
-void instrucaoF(Processo *processo, int n);
-void instrucaoR(Processo *processo, char *nome_do_arquivo);
 
 void lerInstrucoes(Processo *processo, char *pathProcesso);
 

@@ -22,8 +22,19 @@ typedef struct gerenciadorProcesso{
     EstadoExecucao estadoExecucao;
 } GerenciadorProcesso;
 
-void gerenciarProcesso(int *fd);
+void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso);
 void init(Processo *processoSimulado);
-void executaIntrucao(Processo *processoSimulado, char *linhaDeInstrucao);
+void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso);
+void instrucaoN(CPU *cpu, int n);
+void instrucaoD(CPU *cpu, int x);
+void instrucaoV(CPU *cpu, int x, int n);
+void instrucaoA(CPU *cpu, int x, int n);
+void instrucaoS(CPU *cpu, int x, int n);
+void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n);
+void instrucaoT(GerenciadorProcesso* gerenciadorProcesso);
+void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n);
+void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo);
+void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoExecucao, Processo *processoEscalonado);
+
 
 #endif
