@@ -35,6 +35,7 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso);
 void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS);
 void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS);
 void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado);
-
+void escalonadorPrioridade(GerenciadorProcesso *gerenciadorProcesso,Processo *processo);
+int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu);
 
 #endif

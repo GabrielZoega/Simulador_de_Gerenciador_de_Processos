@@ -193,3 +193,37 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     AlocarProcesso(&gerenciadorProcesso->Cpu, processoEscalonado);
     gerenciadorProcesso->Cpu.PC_Atual--;
 }
+
+void escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso,Processo *processo){
+    //processo pai inicia com prioridade 0(mais alta)
+    if(processo->prioridade==0){
+        processo->prioridade = 1;
+        trocaDeContexto(gerenciadorProcesso,processo);
+    }else if(processo->prioridade == 1 && processo->tempoUsadoCPU > 1){
+        processo->prioridade = 2;
+        trocaDeContexto(gerenciadorProcesso,processo);
+    }else if(processo->prioridade==2 && processo->tempoUsadoCPU > 3){
+        processo->prioridade = 3;
+        trocaDeContexto(gerenciadorProcesso,processo);
+    }else if(processo->prioridade == 3 && processo->tempoUsadoCPU > 7){
+        trocaDeContexto(gerenciadorProcesso,processo);
+    }else{
+        trocaDeContexto(gerenciadorProcesso,processo);
+    }
+}
+
+/* Função que faz o escalonamento por Round Robin */
+/* - função é executada a cada final de unidade de tempo. */
+/* - indiceCpu é passado se ao terminar a unidade de tempo o processo precisa voltar para o estado pronto, ou seja, quando ele não vai para o estado bloqueado ou terminou de executar. Caso seja um desses casos, o indiceCpu deve ser passado como null. */
+int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu){
+    int indice;
+    /* Retira o primeiro da fila para executar. */
+    indice = FDesenfileira(&(estP->processosP));
+
+    if (indiceCpu >= 0)
+        /* Coloca o que estava executando ao final da fila. */
+        FEnfileira(&(estP->processosP), indiceCpu);
+
+    /* Retorna o índice do que deve executar atualmente. */
+    return indice;
+}

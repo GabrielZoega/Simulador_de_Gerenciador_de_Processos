@@ -7,4 +7,5 @@ SOURCES=$(wildcard sources/*.c)
 MAIN=main.c
 
 all:
-	gcc $(MAIN) $(HEADERS) $(SOURCES) -o $(PROJ_NAME)
+	@ gcc $(MAIN) $(SOURCES) -o $(PROJ_NAME)
+	@ ./$(PROJ_NAME)
