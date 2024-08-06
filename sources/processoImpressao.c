@@ -51,13 +51,12 @@ void MenuImpressao(GerenciadorProcesso *gerenciadorProcesso){
 
 void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso){
     printf("\n╒══════════════════════════════════════════════════════╡ ESTADO DO SISTEMA ╞════════════════════════════════════════════════════════╕"); 
-    printf("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> GERENCIADOR DE PROCESSOS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-    printf("\n°° Tempo de uso do sistema no momento atual: %d unidades de tempo",gerenciadorProcesso->Tempo);
-    printf("\n\n°° Processos em estado bloqueado:\n");
+    printf("\nTempo de uso do sistema no momento atual: %d unidades de tempo",gerenciadorProcesso->Tempo);
+    printf("\n\nProcessos em estado bloqueado:\n");
     ImpressaoEstadosBloqueados(gerenciadorProcesso);
-    printf("\n\n°° Processos em estado pronto:\n");
+    printf("\n\nProcessos em estado pronto:\n");
     ImpressaoEstadosProntos(gerenciadorProcesso);
-    printf("\n\n°° Processos em estado de execução:\n");
+    printf("\n\nProcessos em estado de execução:\n");
     ImpressaoEstadosExecucao(gerenciadorProcesso);
     ImprimeCPU(&(gerenciadorProcesso)->Cpu);
     ImpressaoTabelaDeProcessos(gerenciadorProcesso);
