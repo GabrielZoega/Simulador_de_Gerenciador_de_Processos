@@ -11,12 +11,12 @@ void Pcontrole(FILE *arq, int opcao, int *fd){
         // fecha a leitura do pipe
         close(fd[0]);
         
-        printf("\nComandos: ");
+        printf("\nComandos: \n");
         while(1){             
             scanf("%c", &comandoSaida);
             getchar();
 
-            printf("Saiu do pai: %c\n", comandoSaida);
+//            printf("Saiu do pai: %c\n", comandoSaida);
 
             // Escrevendo a string no pipe
             EscreverPipe(fd[1], &comandoSaida);

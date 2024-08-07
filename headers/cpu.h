@@ -20,5 +20,6 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso);
 void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo);
 void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo);
 void alocarVetorPrograma(CPU *cpu, Processo *processo);
+void copiarVetorPrograma(CPU *cpu, Processo *processo);
 
 #endif
