@@ -2,8 +2,8 @@
 
 void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador){
     //inicializa a tabela de processos
-    int i = 0;
-    for (i;i<50;i++){
+    int i;
+    for (i = 0; i < 50; i++){
         gerenciadorProcesso->tabelaProcessos.processos[i].idProcesso = -1;
     }
     gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos = 1;
@@ -40,9 +40,13 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
         if(comandoEntrada == 'U'){
         	printf("Processo Cpu: %d\n", gerenciadorProcesso->Cpu.idprocesso);
         	printf("Processo execucao: %d\n", gerenciadorProcesso->estadoExecucao.processoExec);
-            executaInstrucao(gerenciadorProcesso, &IDS, escalonador);
+            executaInstrucao(gerenciadorProcesso, &IDS, escalonador, &filaDePrioridades);
             gerenciadorProcesso->Cpu.PC_Atual++;
-            gerenciadorProcesso->Tempo++;       
+            gerenciadorProcesso->Tempo++;
+            desbloqueiaProcessos(gerenciadorProcesso, &filaDePrioridades);
+            if(escalonador == FILA_DE_PRIORIDADE){
+            	confereFatiaQuantum(gerenciadorProcesso);
+            }
         }else if(comandoEntrada == 'I'){
             
         }else if(comandoEntrada == 'M'){
@@ -70,7 +74,7 @@ void init(Processo *processoSimulado, char *path, int *IDS){
     lerInstrucoes(processoSimulado, path);
 }
 
-void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador){
+void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade){
     char nome_do_arquivo[30];
     char instrucao;
     int x = 0, n = 0;
@@ -106,11 +110,11 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
         break;
     case 'B':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &n);
-        instrucaoB(gerenciadorProcesso, n, escalonador);
+        instrucaoB(gerenciadorProcesso, n, escalonador, filasDePrioridade);
         printf("ENTROU B\n");
         break;
     case 'T':
-        instrucaoT(gerenciadorProcesso, escalonador);
+        instrucaoT(gerenciadorProcesso, escalonador, filasDePrioridade);
 
         printf("ENTROU T\n");
         break;
@@ -153,16 +157,17 @@ void instrucaoS(CPU *Cpu, int x, int n){
 }
 
 //TODO implementar o escalonador
-void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador){
+void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade){
     Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
     processoAtual->estado = BLOQUEADO;
     processoAtual->tempoBloqueado = n;
 
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador);
     // trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
 //TODO conferir essa URGENTE
-void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador){
+void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade){
     Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
 	if(processoAtual->memoriaDoProcesso !=  NULL){
 		free(processoAtual->memoriaDoProcesso);
@@ -170,6 +175,7 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador){
 
 	free(processoAtual->vetorPrograma);
     processoAtual->idProcesso = -1;
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador);
 	//trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -185,6 +191,7 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int e
     novoProcesso.idProcessoPai = gerenciadorProcesso->Cpu.idprocesso;
     novoProcesso.inicioTempo = gerenciadorProcesso->Tempo;
     novoProcesso.estado = PRONTO;
+    FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), novoProcesso.idProcesso);
     novoProcesso.prioridade = processoAtual->prioridade;
     novoProcesso.programCounter = gerenciadorProcesso->Cpu.PC_Atual+1;
     novoProcesso.tempoUsadoCPU = 0;
@@ -208,7 +215,7 @@ void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo,
     gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
     gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada = novoProcesso.tamanhoMemoriaDoProcesso;
 
-
+//    decideEscalonador
     // trocaDeContexto(gerenciadorProcesso, &novoProcesso);
     // gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec] = novoProcesso;
 }
@@ -223,9 +230,9 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     processoNaoEscalonado->tamanhoMemoriaDoProcesso = gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada;
     alocarMemoriaDoProcesso(&(gerenciadorProcesso->Cpu), processoNaoEscalonado);
 
-    if(processoEscalonado->estado == BLOQUEADO){
+    if(processoNaoEscalonado->estado == BLOQUEADO){
 		FEnfileira(&(gerenciadorProcesso->estadoBloqueado.processosB), processoNaoEscalonado->idProcesso);
-    }else if(processoEscalonado->estado == PRONTO){
+    }else if(processoNaoEscalonado->estado == PRONTO){
 		FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), processoNaoEscalonado->idProcesso);
     }
     free(gerenciadorProcesso->Cpu.VetorDeProgramas);
@@ -238,10 +245,68 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     // gerenciadorProcesso->Cpu.PC_Atual--;
 }
 
+void desbloqueiaProcessos(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade){
+	TFila *filaBloqueados = &(gerenciadorProcesso->estadoBloqueado.processosB);
+	TFila *filaProntos = &(gerenciadorProcesso->estadoPronto.processosP);
+	int idProcesso1, idProcesso;
+	if(!FEhVazia(filaBloqueados)){
+		idProcesso1 = FDesenfileira(filaBloqueados);
+		if(gerenciadorProcesso->tabelaProcessos.processos[idProcesso].tempoBloqueado <= 0){
+			FEnfileira(filaProntos, idProcesso);
+			enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcesso1);
+		}else {
+			gerenciadorProcesso->tabelaProcessos.processos[idProcesso1].tempoBloqueado--;
+			FEnfileira(filaBloqueados, idProcesso);
+		}
+
+		while(filaBloqueados->pFrente->indice != idProcesso1){
+			idProcesso = FDesenfileira(filaBloqueados);
+			if(gerenciadorProcesso->tabelaProcessos.processos[idProcesso].tempoBloqueado <= 0){
+				FEnfileira(filaProntos, idProcesso);
+				enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcesso);
+			}else {
+				gerenciadorProcesso->tabelaProcessos.processos[idProcesso].tempoBloqueado--;
+				FEnfileira(filaBloqueados, idProcesso);
+			}
+		}
+	}
+}
+
+void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso){
+	Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
+	if(processoAtual->prioridade == 0){
+		if(gerenciadorProcesso->Cpu.FatiaQuantum >= 1){
+			processoAtual->prioridade = 1;
+		}else if(processoAtual->estado == BLOQUEADO){
+			processoAtual->prioridade = 0;
+		}
+	}else if(processoAtual->prioridade == 1){
+		if(gerenciadorProcesso->Cpu.FatiaQuantum >= 2){
+			processoAtual->prioridade = 2;
+		}else if(processoAtual->estado == BLOQUEADO){
+			processoAtual->prioridade = 0;
+		}
+	}else if(processoAtual->prioridade == 2){
+		if(gerenciadorProcesso->Cpu.FatiaQuantum >= 4){
+			processoAtual->prioridade = 3;
+		}else if(processoAtual->estado == BLOQUEADO){
+			processoAtual->prioridade = 1;
+		}
+	}else if(processoAtual->prioridade == 3){
+		if(gerenciadorProcesso->Cpu.FatiaQuantum >= 8){
+			processoAtual->prioridade = 3;
+		}else if(processoAtual->estado == BLOQUEADO){
+			processoAtual->prioridade = 2;
+		}
+	}
+}
+
 int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade){
     //processo pai inicia com prioridade 0(mais alta)
+	int idProcessoNaoEscalonado = gerenciadorProcesso->estadoExecucao.processoExec;
+	enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
 
-    Processo *processoEscalonado;
+	Processo *processoEscalonado;
     int idProcessoEscalonado;
     if(!FEhVazia(&(filasDePrioridade->prioridade0))){
         idProcessoEscalonado =  FDesenfileira(&(filasDePrioridade->prioridade0));
@@ -267,24 +332,44 @@ int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDeP
 
     if(processoEscalonado->prioridade == 0){
         processoEscalonado->prioridade = 1;
-        trocaDeContexto(gerenciadorProcesso,processoEscalonado);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+
     }else if(processoEscalonado->prioridade == 1 && processoEscalonado->tempoUsadoCPU > 1){
         processoEscalonado->prioridade = 2;
-        trocaDeContexto(gerenciadorProcesso,processoEscalonado);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+
     }else if(processoEscalonado->prioridade == 2 && processoEscalonado->tempoUsadoCPU > 3){
         processoEscalonado->prioridade = 3;
-        trocaDeContexto(gerenciadorProcesso,processoEscalonado);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+
     }else if(processoEscalonado->prioridade == 3 && processoEscalonado->tempoUsadoCPU > 7){
-        trocaDeContexto(gerenciadorProcesso,processoEscalonado);
+    	trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+
     }else{
-        trocaDeContexto(gerenciadorProcesso,processoEscalonado);
+    	trocaDeContexto(gerenciadorProcesso, processoEscalonado);
     }
 	return 0;
 }
 
+void enfileiraFilaDePrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int idProcesso){
+	Processo *processoEnfileirado = &(gerenciadorProcesso->tabelaProcessos.processos[idProcesso]);
+	if(processoEnfileirado->prioridade == 0){
+		FEnfileira(&(filasDePrioridade->prioridade0), idProcesso);
+	}else if(processoEnfileirado->prioridade == 1){
+		FEnfileira(&(filasDePrioridade->prioridade1), idProcesso);
+	}else if(processoEnfileirado->prioridade == 2){
+		FEnfileira(&(filasDePrioridade->prioridade2), idProcesso);
+	}else if(processoEnfileirado->prioridade == 3){
+		FEnfileira(&(filasDePrioridade->prioridade3), idProcesso);
+	}
+}
+
 /* Função que faz o escalonamento por Round Robin */
 /* - função é executada a cada final de unidade de tempo. */
-/* - indiceCpu é passado se ao terminar a unidade de tempo o processo precisa voltar para o estado pronto, ou seja, quando ele não vai para o estado bloqueado ou terminou de executar. Caso seja um desses casos, o indiceCpu deve ser passado como null. */
+/* - indiceCpu é passado se ao terminar a unidade de tempo o processo
+ * precisa voltar para o estado pronto, ou seja, quando ele não vai para
+ * o estado bloqueado ou terminou de executar. Caso seja um desses casos,
+ * o indiceCpu deve ser passado como null. */
 int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu){
     int indice;
     /* Retira o primeiro da fila para executar. */
@@ -298,10 +383,10 @@ int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu){
     return indice;
 }
 
-void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, Processo *processo, int escalonador){
+void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador){
 	switch(escalonador){
 	case FILA_DE_PRIORIDADE:
-		escalonadorFilaPrioridade(gerenciadorProcesso, processo);
+		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade);
 		break;
 	case ROUND_ROBIN:
 		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
