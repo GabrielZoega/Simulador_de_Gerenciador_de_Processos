@@ -28,7 +28,7 @@ int FEnfileira(TFila *pFila, int indice) {
 int FDesenfileira(TFila* pFila) {
     Apontador pAux;
     int idProcesso;
-    if (FEhVazia(pFila)) return 0;
+    if (FEhVazia(pFila)) return -1;
 
     pAux = pFila->pFrente->pProx;
 

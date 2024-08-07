@@ -117,7 +117,6 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
         break;
     case 'T':
         instrucaoT(gerenciadorProcesso, escalonador, filasDePrioridade);
-
         printf("ENTROU T\n");
         break;
     case 'F':
@@ -167,7 +166,7 @@ void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador
     processoAtual->estado = BLOQUEADO;
     processoAtual->tempoBloqueado = n;
 
-    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador);
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, 0);
     // trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -184,7 +183,7 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, Filas
     }
     processoAtual->idProcesso = -1;
 
-    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador);
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, 1);
 	//trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -201,12 +200,12 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int e
     novoProcesso.inicioTempo = gerenciadorProcesso->Tempo;
     novoProcesso.estado = PRONTO;
     novoProcesso.prioridade = processoAtual->prioridade;
-    novoProcesso.programCounter = gerenciadorProcesso->Cpu.PC_Atual+1;
+    novoProcesso.programCounter = gerenciadorProcesso->Cpu.PC_Atual;
     novoProcesso.tempoUsadoCPU = 0;
     novoProcesso.tempoBloqueado = 0;
     printf("ID Enfileirado: %d\n", novoProcesso.idProcesso);
     FEnfileira(&gerenciadorProcesso->estadoPronto.processosP, novoProcesso.idProcesso);
-    enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, novoProcesso.idProcesso);
+    //enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, novoProcesso.idProcesso);
 
     gerenciadorProcesso->Cpu.PC_Atual += n + 1;
     gerenciadorProcesso->tabelaProcessos.processos[novoProcesso.idProcesso] = novoProcesso;
@@ -315,7 +314,7 @@ void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso){
 	}
 }
 
-int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade){
+int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int flagT){
     //processo pai inicia com prioridade 0(mais alta)
 	int idProcessoNaoEscalonado = gerenciadorProcesso->estadoExecucao.processoExec;
 
@@ -348,7 +347,7 @@ int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDeP
     
     }else return -1;
 
-	enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
+    if (flagT != 1) enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
 
     if(processoEscalonado->prioridade == 0){
         processoEscalonado->prioridade = 1;
@@ -404,10 +403,10 @@ int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu){
     return indice;
 }
 
-void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador){
+void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador, int flagT){
 	switch(escalonador){
 	case FILA_DE_PRIORIDADE:
-		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade);
+		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade, flagT);
 		break;
 	case ROUND_ROBIN:
 		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
