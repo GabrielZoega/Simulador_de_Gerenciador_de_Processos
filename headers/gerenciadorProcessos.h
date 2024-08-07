@@ -42,7 +42,7 @@ void instrucaoA(CPU *cpu, int x, int n);
 void instrucaoS(CPU *cpu, int x, int n);
 void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade);
 void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade);
-void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador);
+void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade);
 void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador);
 void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado);
 void desbloqueiaProcessos(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade);
