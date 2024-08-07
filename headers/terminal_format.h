@@ -22,18 +22,21 @@
 
 /*  ESTILIZAÇÃO DE TEXTO  */
 #define BOLD 1
+#define FRACO 2
 #define ITALICO 3
 #define UNDERLINE 4
 #define PISCAR 5
 #define INVERTIDO 7
+#define OCULTO 8
 #define CORTADO 9
 
 
-/* Início e Final do formato */
+/* Final e Início do formato */
+#define FINAL "\033[m"
 #define INICIO1 "\033[%dm"
 #define INICIO2 "\033[%d;%dm"
 #define INICIO3 "\033[%d;%d;%dm"
 #define INICIO4 "\033[%d;%d;%d;%dm"
-#define FINAL "\033[m"
+#define INICIO5 "\033[%d;%d;%d;%d;%dm"
 
 /**************************************************************************************************************/

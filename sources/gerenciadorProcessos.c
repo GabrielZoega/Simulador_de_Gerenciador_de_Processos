@@ -41,7 +41,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso){
             break;
         }
         else{
-            printf("\n" INICIO3 "Um comando invalido foi digitado!" FINAL "\n", BOLD, VERMELHO, PISCAR);
+            printf("\n" INICIO3 "Um comando inválido foi digitado!" FINAL "\n", BOLD, VERMELHO, PISCAR);
             printf("\n" INICIO2 "Programa Encerrado!" FINAL "\n", BOLD, VERMELHO);
             Asteriscos(FUNDO_VERMELHO);
             break;
