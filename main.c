@@ -1,6 +1,6 @@
 #include "headers/Pcontrole.h"
 #include "headers/gerenciadorProcessos.h"
-
+#include "headers/processoImpressao.h"
 
 int main(){
     GerenciadorProcesso gerenciadorProcesso;
@@ -10,16 +10,18 @@ int main(){
     int pipeRetorno = pipe(fd);
     int opcao;
     
-    printf("Escolha a forma de entrar com os comandos do processo controle:\n\n");
-    printf("Digite '1' para entrar pelo terminal \n");
-    printf("Digite '2' para entrar por um arquivo \n");
-    printf("Digite '0' para encerrar o programa \n");
-    printf("Opcao escolhida: ");
+    printf(INICIO2 "*************************************** Simulador de Gerenciador de Processos ****************************************************" FINAL "\n\n", BOLD, FUNDO_VERMELHO);
+    printf(INICIO2 "Escolha a forma de entrar com os comandos do processo controle:\n\n" FINAL, BOLD, UNDERLINE);
+    printf(INICIO1 "Digite '1' para entrar pelo terminal \n" FINAL, BOLD);
+    printf(INICIO1 "Digite '2' para entrar por um arquivo \n" FINAL, BOLD);
+    printf(INICIO1 "Digite '0' para encerrar o programa \n" FINAL, BOLD);
+    printf("\n" INICIO2 "Opcao escolhida:" FINAL " ", BOLD, UNDERLINE);
     scanf("%d", &opcao);
     getchar();
 
     if (opcao != 1 && opcao != 2){
-        printf("Programa encerrado.\n\n");
+        printf("\n" INICIO2 "Programa encerrado.\n\n" FINAL, BOLD, VERMELHO);
+        Asteriscos(FUNDO_VERMELHO);
         return 0;
     }
 
@@ -41,8 +43,9 @@ int main(){
             if (pid > 0){
                 Pcontrole(NULL, opcao, fd);
                 
+            }
             // Processo Filho (Processo Gerenciador de Processos)
-            }else{
+            else{
                 gerenciarProcesso(fd, &gerenciadorProcesso);                
             }
                 
@@ -53,10 +56,10 @@ int main(){
             if (pid > 0){
 
                 FILE *arq;
-                Pcontrole(arq, opcao, fd);
-                
+                Pcontrole(arq, opcao, fd);  
+            }
             // Processo Filho (Processo Gerenciador de Processos)
-            }else{
+            else{
                 gerenciarProcesso(fd, &gerenciadorProcesso);
             }
         }

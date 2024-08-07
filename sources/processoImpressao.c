@@ -5,58 +5,56 @@
 void MenuImpressao(GerenciadorProcesso *gerenciadorProcesso){
     //Ideia para o Menu - Tentar engoblar todos os campos definidos
     int opcao = 0;
-    printf("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MENU DE IMPRESSAO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-    printf("1 - Apresentar Tudo\n");
+    printf(INICIO2 "\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MENU DE IMPRESSAO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n" FINAL, BOLD, VERMELHO);
+    printf(INICIO1 "1 - Apresentar Tudo\n", BOLD);
     printf("2 - Tempo de uso atual do sistema\n");
     printf("3 - Processos em estado bloqueado\n");
     printf("4 - Processos em estado pronto\n");
     printf("5 - Processos em estado de execução\n");
     printf("6 - Informações sobre a CPU no momento atual\n");
     printf("7 - Tabela de Processos atual\n");
-    printf("8 - Sair da impressão\n");
-    printf("=============================================================\n");
-    printf("Escolha uma opção: ");
+    printf("8 - Sair da impressão\n" FINAL);
+    printf(INICIO2 "================================================================================================================================\n" FINAL, BOLD, VERMELHO);
+    printf(INICIO2 "Escolha uma opção:" FINAL " ", BOLD, UNDERLINE);
     scanf("%d",&opcao);
-    while(opcao!=8){
-        if(opcao==1){
-            ApresentarTudo(gerenciadorProcesso);
-        }else if(opcao==2){
-            
-            printf("\n\nTempo de uso do sistema no momento atual: %d unidades de tempo\n", gerenciadorProcesso->Tempo);
-
-        }else if(opcao==3){
-
-            ImpressaoEstados(gerenciadorProcesso);
     
-        }else if(opcao==4){
+    if(opcao==1){
+        ApresentarTudo(gerenciadorProcesso);
+    }else if(opcao==2){
+        
+        printf(INICIO2 "\n\nTempo de uso do sistema no momento atual:" FINAL " %d unidades de tempo\n", BOLD, UNDERLINE, gerenciadorProcesso->Tempo);
 
-            ImpressaoEstadosProntos(gerenciadorProcesso);
+    }else if(opcao==3){
 
-        }else if(opcao==5){
+        ImpressaoEstadosBloqueados(gerenciadorProcesso);
 
-            ImpressaoEstadosExecucao(gerenciadorProcesso);
+    }else if(opcao==4){
 
-        }else if(opcao==6){
+        ImpressaoEstadosProntos(gerenciadorProcesso);
 
-            ImprimeCPU(&(gerenciadorProcesso)->Cpu);
+    }else if(opcao==5){
 
-        }else if(opcao==7){
+        ImpressaoEstadosExecucao(gerenciadorProcesso);
 
-            ImpressaoTabelaDeProcessos(gerenciadorProcesso);
-            
-        }
+    }else if(opcao==6){
+
+        ImprimeCPU(&(gerenciadorProcesso)->Cpu);
+
+    }else if(opcao==7){
+
+        ImpressaoTabelaDeProcessos(gerenciadorProcesso); 
     }
 }
 //
 
 void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso){
-    printf("\n╒══════════════════════════════════════════════════════╡ ESTADO DO SISTEMA ╞════════════════════════════════════════════════════════╕"); 
-    printf("\nTempo de uso do sistema no momento atual: %d unidades de tempo",gerenciadorProcesso->Tempo);
-    printf("\n\nProcessos em estado bloqueado:\n");
+    printf("\n\n" INICIO2 "╒══════════════════════════════════════════════════════╡ ESTADO DO SISTEMA ╞════════════════════════════════════════════════════════╕" FINAL "\n\n", BOLD, FUNDO_AZUL); 
+    printf(INICIO2 "Tempo de uso do sistema no momento atual:" FINAL" %d unidades de tempo", BOLD, UNDERLINE, gerenciadorProcesso->Tempo);
+    printf("\n\n" INICIO3 "Processos em estado bloqueado:" FINAL "\n", BOLD, UNDERLINE, FUNDO_VERMELHO);
     ImpressaoEstadosBloqueados(gerenciadorProcesso);
-    printf("\n\nProcessos em estado pronto:\n");
+    printf("\n\n" INICIO3 "Processos em estado pronto:" FINAL "\n", BOLD, UNDERLINE, FUNDO_VERDE);
     ImpressaoEstadosProntos(gerenciadorProcesso);
-    printf("\n\nProcessos em estado de execução:\n");
+    printf("\n\n" INICIO3 "Processos em estado de execução:" FINAL "\n", BOLD, UNDERLINE, FUNDO_AMARELO);
     ImpressaoEstadosExecucao(gerenciadorProcesso);
     ImprimeCPU(&(gerenciadorProcesso)->Cpu);
     ImpressaoTabelaDeProcessos(gerenciadorProcesso);
@@ -71,52 +69,57 @@ void ImpressaoEstadosProntos(GerenciadorProcesso *gerenciadorProcesso){
 }
 
 void ImpressaoEstadosExecucao(GerenciadorProcesso *gerenciadorProcesso){
-    ImprimeFila(&(gerenciadorProcesso->estadoExecucao.processoExec));
+    printf("%d", gerenciadorProcesso->estadoExecucao.processoExec);
 }
 //
 void ImpressaoProcessoEstado(Estado estadoprocesso){
     switch (estadoprocesso)
     {
     case BLOQUEADO:
-        printf("Estado => BLOQUEADO ");
+        printf(INICIO2 "Estado => BLOQUEADO " FINAL "\n\n", BOLD, VERMELHO);
         break;
     case PRONTO:
-        printf("Estado => PRONTO ");
+        printf(INICIO2 "Estado => PRONTO " FINAL "\n\n", BOLD, VERDE);
         break;
     case EM_EXECUCAO:
-        printf("Estado => EM EXECUÇÃO");
+        printf(INICIO2 "Estado => EM EXECUÇÃO" FINAL "\n\n", BOLD, AMARELO);
         break;
     }
 }
 
 void ImpressaoProcesso(Processo *processo){
-    printf("ID processo => %d\n",processo->idProcesso);
-    printf("ID processo pai => %d\n",processo->idProcessoPai);
-    printf("PC => %d\n",processo->programCounter);
-    printf("Prioridad => %d\n",processo->prioridade);
-    ImpressaoEstadosProntos(processo->estado);
-    printf("Tempo de início => %d\n",processo->inicioTempo);
-    printf("Tempo de CPU => %d\n",processo->tempoUsadoCPU);
+    printf("\n\n" INICIO2 "******************* Processo => %d *********************"  FINAL "\n\n", BOLD, INVERTIDO, processo->idProcesso);
+    printf(INICIO2 "ID processo => %d"  FINAL "\n\n", BOLD, FUNDO_AMARELO, processo->idProcesso);
+    printf(INICIO2 "ID processo pai => %d" FINAL "\n\n", BOLD, FUNDO_AZUL, processo->idProcessoPai);
+    printf(INICIO2 "PC => %d" FINAL "\n\n", BOLD, FUNDO_ROXO, processo->programCounter);
+    printf(INICIO2 "Prioridade => %d" FINAL "\n\n", BOLD, FUNDO_VERDE_AGUA, processo->prioridade);
+    ImpressaoProcessoEstado(processo->estado);
+    printf(INICIO2 "Tempo de início => %d" FINAL "\n\n", BOLD, FUNDO_VERDE, processo->inicioTempo);
+    printf(INICIO2 "Tempo de CPU => %d" FINAL "\n\n", BOLD, FUNDO_VERMELHO, processo->tempoUsadoCPU);
 }
 
 void ImprimeMemoriaSimuladaCPU(CPU *cpu){
-    printf("Conteúdo da memória simulada ==> \n");
+    printf(INICIO2 "Conteúdo da memória simulada:" FINAL "\n", BOLD, FUNDO_VERDE_AGUA);
     for(int i = 0; i < cpu->tamanhoMemoriaSimulada ; i++){
-        printf("[%d] => %d",i,cpu->MemoriaSimulada[i]);
+        printf( "\t"INICIO2 "[%d] => %d" FINAL "\n", BOLD, VERDE_AGUA, i, cpu->MemoriaSimulada[i]);
     }
 }
 
 void ImprimeCPU(CPU *cpu){
-    printf("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CPU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-    printf("PC => %d\n", cpu->PC_Atual);
-    printf("Id Processo Atual => %d\n", cpu->idprocesso);
-    printf("Fatia de Quantum => %d\n", cpu->FatiaQuantum);
+    printf("\n\n" INICIO2 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CPU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" FINAL "\n\n", BOLD, FUNDO_VERDE);
+    printf(INICIO2 "PC => %d" FINAL "\n\n", BOLD, FUNDO_ROXO, cpu->PC_Atual);
+    printf(INICIO2 "Id Processo Atual => %d" FINAL "\n\n", BOLD, FUNDO_AMARELO, cpu->idprocesso);
+    printf(INICIO2 "Fatia de Quantum => %d" FINAL "\n\n", BOLD, FUNDO_VERMELHO, cpu->FatiaQuantum);
     ImprimeMemoriaSimuladaCPU(cpu);
 }
 
 void ImpressaoTabelaDeProcessos(GerenciadorProcesso *gerenciadorProcesso){
-    printf("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TABELA DE PROCESSOS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-    for(int i = 0;i < 50;i++){
+    printf("\n\n" INICIO2 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TABELA DE PROCESSOS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" FINAL "\n", BOLD, FUNDO_ROXO);
+    for(int i = 0; i < 5; i++){
         ImpressaoProcesso(&(gerenciadorProcesso->tabelaProcessos.processos[i]));
     }
 }
+void Asteriscos(int cor){
+    printf("\n" INICIO2 "*********************************************************************************************************************************" FINAL "\n\n", BOLD, cor);
+}
+        

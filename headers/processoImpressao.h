@@ -1,4 +1,5 @@
 #include "gerenciadorProcessos.h"
+#include "terminal_format.h"
 
 //Funções para a impressão
 void MenuImpressao(GerenciadorProcesso *gerenciadorProcesso);
@@ -11,3 +12,4 @@ void ImpressaoEstadosBloqueados(GerenciadorProcesso *gerenciadorProcesso);
 void ImpressaoEstadosProntos(GerenciadorProcesso *gerenciadorProcesso);
 void ImpressaoEstadosExecucao(GerenciadorProcesso *gerenciadorProcesso);
 void ImpressaoTabelaDeProcessos(GerenciadorProcesso *gerenciadorProcesso);
+void Asteriscos(int cor);

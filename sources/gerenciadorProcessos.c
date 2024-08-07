@@ -1,4 +1,5 @@
 #include "../headers/gerenciadorProcessos.h"
+#include "../headers/processoImpressao.h"
 
 void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso){
     FFVazia(&(gerenciadorProcesso->estadoBloqueado.processosB));
@@ -6,6 +7,8 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso){
     gerenciadorProcesso->estadoExecucao.processoExec =  0;
     Processo processoSimulado;
     int IDS = 0;
+    gerenciadorProcesso->Tempo = 0;
+
     init(&processoSimulado, INIT, &IDS);
     AlocarProcesso(&gerenciadorProcesso->Cpu, &processoSimulado);
 
@@ -20,21 +23,27 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso){
         // lendo o que foi escrito no pipe, e armazenando isso em comandoEntrada
         LerPipe(fd[0], &comandoEntrada);
 
-        printf("Entrou no filho: %c\n", comandoEntrada);
+        //printf("Entrou no filho: %c\n", comandoEntrada);
         
         if(comandoEntrada == 'U'){
             executaInstrucao(gerenciadorProcesso, &IDS);
             gerenciadorProcesso->Cpu.PC_Atual++;
             gerenciadorProcesso->Cpu.FatiaQuantum++;
             gerenciadorProcesso->Tempo++;
-        }else if(comandoEntrada == 'I'){
+        }
+        else if(comandoEntrada == 'I'){
+            ApresentarTudo(gerenciadorProcesso);
             
-        }else if(comandoEntrada == 'M'){
+        }
+        else if(comandoEntrada == 'M'){
+            ApresentarTudo(gerenciadorProcesso);
+            Asteriscos(FUNDO_VERMELHO);
             break;
         }
         else{
-            printf("Um comando invalido foi digitado!\n");
-            printf("Programa Encerrado!\n");
+            printf("\n" INICIO3 "Um comando invalido foi digitado!" FINAL "\n", BOLD, VERMELHO, PISCAR);
+            printf("\n" INICIO2 "Programa Encerrado!" FINAL "\n", BOLD, VERMELHO);
+            Asteriscos(FUNDO_VERMELHO);
             break;
         }
     }
@@ -65,47 +74,47 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS){
     case 'N':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &n);
         instrucaoN(&(gerenciadorProcesso->Cpu), n);
-        printf("ENTROU N\n");
+        //printf("ENTROU N\n");
         break;
     case 'D':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &x);
         instrucaoD(&(gerenciadorProcesso->Cpu), x);
-        printf("ENTROU D\n");
+        //printf("ENTROU D\n");
         break;
     case 'V':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
         instrucaoV(&(gerenciadorProcesso->Cpu), x, n);
-        printf("ENTROU V\n");
+        //printf("ENTROU V\n");
         break;
     case 'A':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
         instrucaoA(&(gerenciadorProcesso->Cpu), x, n);
-        printf("ENTROU A\n");
+        //printf("ENTROU A\n");
         break;
     case 'S':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
         instrucaoS(&(gerenciadorProcesso->Cpu), x, n);
-        printf("ENTROU S\n");
+        //printf("ENTROU S\n");
         break;
     case 'B':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &n);
         instrucaoB(gerenciadorProcesso, n);
-        printf("ENTROU B\n");
+        //printf("ENTROU B\n");
         break;
     case 'T':
         instrucaoT(gerenciadorProcesso);
 
-        printf("ENTROU T\n");
+        //printf("ENTROU T\n");
         break;
     case 'F':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &n);
-        printf("ENTROU F\n");
+        //printf("ENTROU F\n");
         instrucaoF(gerenciadorProcesso, n, IDS);
         break;
     case 'R':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %s", &instrucao, nome_do_arquivo);
-        printf("Nome do Arquivo: %s\n", nome_do_arquivo);
-        printf("ENTROU R\n");
+        //printf("Nome do Arquivo: %s\n", nome_do_arquivo);
+        //printf("ENTROU R\n");
         instrucaoR(gerenciadorProcesso, nome_do_arquivo, IDS);
         break;
     default:
