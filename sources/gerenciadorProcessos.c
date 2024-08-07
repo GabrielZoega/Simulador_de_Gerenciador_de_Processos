@@ -36,7 +36,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
         LerPipe(fd[0], &comandoEntrada);
 
 //        printf("Entrou no filho: %c\n", comandoEntrada);
-        
+
         if(comandoEntrada == 'U'){
         	printf("Processo Cpu: %d\n", gerenciadorProcesso->Cpu.idprocesso);
         	printf("Processo execucao: %d\n", gerenciadorProcesso->estadoExecucao.processoExec);
@@ -49,6 +49,8 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
             }else if(escalonador == ROUND_ROBIN){
             	escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
             }
+            printf("Quantidade de Processos na Tabela: %d\n", gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos);
+            if(gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos <= 0) printf("Não ha mais processos em execução, digite M para encerrar o programa\n");
         }else if(comandoEntrada == 'I'){
             
         }else if(comandoEntrada == 'M'){
@@ -184,6 +186,7 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, Filas
     processoAtual->idProcesso = -1;
 
     decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, 1);
+    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos -= 2;
 	//trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -209,6 +212,7 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int e
 
     gerenciadorProcesso->Cpu.PC_Atual += n + 1;
     gerenciadorProcesso->tabelaProcessos.processos[novoProcesso.idProcesso] = novoProcesso;
+    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos++;
 }
 
 void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador){
