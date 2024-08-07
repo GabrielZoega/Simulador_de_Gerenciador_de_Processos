@@ -8,7 +8,7 @@ void inicializaCPU(CPU *cpu){
 }
 
 void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
-    int i = 0;
+	int i = 0;
     cpu->idprocesso = novoprocesso->idProcesso; //id do processo em execução
     cpu->PC_Atual = novoprocesso->programCounter; //PC atualizado
     cpu->FatiaQuantum = 0;
@@ -19,8 +19,8 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
     for (int j = 0; j < i; j++)
         cpu->VetorDeProgramas[j] = (char*) malloc (sizeof (char) * TAM_INST);
     
-    int c = 0;
-    for (int c = 0; c < i; c++){
+    int c;
+    for (c = 0; c < i; c++){
         strcpy(cpu->VetorDeProgramas[c], novoprocesso->vetorPrograma[c]);
     }
 }

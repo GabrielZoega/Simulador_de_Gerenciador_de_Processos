@@ -47,7 +47,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
             if(escalonador == FILA_DE_PRIORIDADE){
             	confereFatiaQuantum(gerenciadorProcesso);
             }else if(escalonador == ROUND_ROBIN){
-            	escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
+            	decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador, 0);
             }
             printf("Quantidade de Processos na Tabela: %d\n", gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos);
             if(gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos <= 0) printf("Não ha mais processos em execução, digite M para encerrar o programa\n");
@@ -94,32 +94,32 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
         break;
     case 'D':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &x);
-        instrucaoD(&(gerenciadorProcesso->Cpu), x);
         printf("ENTROU D\n");
+        instrucaoD(&(gerenciadorProcesso->Cpu), x);
         break;
     case 'V':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        instrucaoV(&(gerenciadorProcesso->Cpu), x, n);
         printf("ENTROU V\n");
+        instrucaoV(&(gerenciadorProcesso->Cpu), x, n);
         break;
     case 'A':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        instrucaoA(&(gerenciadorProcesso->Cpu), x, n);
         printf("ENTROU A\n");
+        instrucaoA(&(gerenciadorProcesso->Cpu), x, n);
         break;
     case 'S':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        instrucaoS(&(gerenciadorProcesso->Cpu), x, n);
         printf("ENTROU S\n");
+        instrucaoS(&(gerenciadorProcesso->Cpu), x, n);
         break;
     case 'B':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &n);
-        instrucaoB(gerenciadorProcesso, n, escalonador, filasDePrioridade);
         printf("ENTROU B\n");
+        instrucaoB(gerenciadorProcesso, n, escalonador, filasDePrioridade);
         break;
     case 'T':
-        instrucaoT(gerenciadorProcesso, escalonador, filasDePrioridade);
         printf("ENTROU T\n");
+        instrucaoT(gerenciadorProcesso, escalonador, filasDePrioridade);
         break;
     case 'F':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d", &instrucao, &n);
@@ -396,7 +396,10 @@ void enfileiraFilaDePrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDe
 int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu){
     int indice;
     /* Retira o primeiro da fila para executar. */
-    indice = FDesenfileira(&(estP->processosP));
+    if(!FEhVazia(&(estP->processosP))){
+    	indice = FDesenfileira(&(estP->processosP));
+
+    }else indice = -1;
 
     if (indiceCpu >= 0)
         /* Coloca o que estava executando ao final da fila. */
@@ -414,7 +417,8 @@ void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePriorida
 		break;
 	case ROUND_ROBIN:
 		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
-		trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]));
+		if(idProcessoEscalonado >= 0)
+			trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]));
 		break;
 	default:
 		break;
