@@ -25,6 +25,8 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
     }
 }
 
+
+//Coloca o que esta na cpu no processo
 void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo){
     processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * cpu->tamanhoMemoriaSimulada);
     processo->tamanhoMemoriaDoProcesso = cpu->tamanhoMemoriaSimulada;
@@ -40,6 +42,7 @@ void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo){
     }
 }
 
+//TODO conferir se precisa liberar a memoria da cpu antes de copiar as instrucoes
 void alocarVetorPrograma(CPU *cpu, Processo *processo){
     int i = 1;
 
@@ -60,6 +63,11 @@ void alocarVetorPrograma(CPU *cpu, Processo *processo){
 void copiarVetorPrograma(CPU *cpu, Processo *processo){
     int i = 1;
 
+    if(cpu->VetorDeProgramas != NULL){
+        free(cpu->VetorDeProgramas);
+        cpu->VetorDeProgramas = NULL;
+    }
+    
     for(i = 1; strcmp(processo->vetorPrograma[i-1], "T") != 0; i++); //calcula numero de instrucoes em i
 
     cpu->VetorDeProgramas = (char**) malloc (sizeof(char*) * i);

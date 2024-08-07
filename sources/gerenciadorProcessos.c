@@ -1,21 +1,30 @@
 #include "../headers/gerenciadorProcessos.h"
 
 void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador){
-	FilasDePrioridade filaDePrioridades;
+    //inicializa a tabela de processos
+    int i = 0;
+    for (i;i<50;i++){
+        gerenciadorProcesso->tabelaProcessos.processos[i].idProcesso = -1;
+    }
+    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos = 1;
+	
+    //Inicializa as filas
+    //Filas de prioridade
+    FilasDePrioridade filaDePrioridades;
 	FFVazia(&(filaDePrioridades.prioridade0));
 	FFVazia(&(filaDePrioridades.prioridade1));
 	FFVazia(&(filaDePrioridades.prioridade2));
     FFVazia(&(filaDePrioridades.prioridade3));
-
+    //Filas de estados
     FFVazia(&(gerenciadorProcesso->estadoBloqueado.processosB));
     FFVazia(&(gerenciadorProcesso->estadoPronto.processosP));
     gerenciadorProcesso->estadoExecucao.processoExec =  0;
-    Processo processoSimulado;
+    
+    //cria o processo pai simulado
+    Processo *processoPaiSimulado = &(gerenciadorProcesso->tabelaProcessos.processos[0]);
     int IDS = 0;
-    init(&processoSimulado, INIT, &IDS);
-    AlocarProcesso(&gerenciadorProcesso->Cpu, &processoSimulado);
-
-    gerenciadorProcesso->tabelaProcessos.processos[0] = processoSimulado;
+    init(processoPaiSimulado, INIT, &IDS);
+    AlocarProcesso(&gerenciadorProcesso->Cpu, processoPaiSimulado);
 
     char comandoEntrada;
 
@@ -33,8 +42,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
         	printf("Processo execucao: %d\n", gerenciadorProcesso->estadoExecucao.processoExec);
             executaInstrucao(gerenciadorProcesso, &IDS, escalonador);
             gerenciadorProcesso->Cpu.PC_Atual++;
-            gerenciadorProcesso->Cpu.FatiaQuantum++;
-            gerenciadorProcesso->Tempo++;
+            gerenciadorProcesso->Tempo++;       
         }else if(comandoEntrada == 'I'){
             
         }else if(comandoEntrada == 'M'){
@@ -66,7 +74,8 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
     char nome_do_arquivo[30];
     char instrucao;
     int x = 0, n = 0;
-
+    gerenciadorProcesso->Cpu.FatiaQuantum++;
+    
     sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c ", &instrucao);
 
     switch (instrucao){
@@ -122,6 +131,7 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
 }
 
 void instrucaoN(CPU *Cpu, int n){
+    if(Cpu->MemoriaSimulada != NULL) free (Cpu->MemoriaSimulada);
     Cpu->MemoriaSimulada = (int*) malloc(sizeof(int) * n);
     Cpu->tamanhoMemoriaSimulada = n;
 }
@@ -151,7 +161,7 @@ void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador
     // trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
-//TODO implementar o escalonador
+//TODO conferir essa URGENTE
 void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador){
     Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
 	if(processoAtual->memoriaDoProcesso !=  NULL){
@@ -159,6 +169,7 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador){
 	}
 
 	free(processoAtual->vetorPrograma);
+    processoAtual->idProcesso = -1;
 	//trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -179,32 +190,34 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int e
     novoProcesso.tempoUsadoCPU = 0;
     novoProcesso.tempoBloqueado = 0;
 
-    gerenciadorProcesso->Cpu.PC_Atual = n + 1;
+    gerenciadorProcesso->Cpu.PC_Atual += n;
     
-    //trocaDeContexto(gerenciadorProcesso, &novoProcesso);
 }
 
 void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador){
     Processo *processoAntigo = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]); 
     Processo novoProcesso;
     init(&novoProcesso, nome_do_arquivo, IDS);
-    
+    novoProcesso.idProcesso = gerenciadorProcesso->Cpu.idprocesso;
     free(processoAntigo->vetorPrograma);
+    processoAntigo->vetorPrograma = NULL;
     copiarVetorPrograma(&(gerenciadorProcesso->Cpu), &novoProcesso);
 
-    gerenciadorProcesso->Cpu.PC_Atual = 0;
+    gerenciadorProcesso->Cpu.PC_Atual = -1;
     free(gerenciadorProcesso->Cpu.MemoriaSimulada);
+    gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
     gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada = novoProcesso.tamanhoMemoriaDoProcesso;
 
 
     // trocaDeContexto(gerenciadorProcesso, &novoProcesso);
-    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec] = novoProcesso;
+    // gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec] = novoProcesso;
 }
 
 void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado){
 
 	//atualiza os dados do processo em execucao na tabela de processos e passa para a fila de estado pronto ou bloqueado
 	Processo *processoNaoEscalonado = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
+    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos ++;
     processoNaoEscalonado->programCounter = gerenciadorProcesso->Cpu.PC_Atual;
     processoNaoEscalonado->tempoUsadoCPU += gerenciadorProcesso->Cpu.FatiaQuantum;
     processoNaoEscalonado->tamanhoMemoriaDoProcesso = gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada;
@@ -222,7 +235,7 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     processoEscalonado->estado = EM_EXECUCAO;
 	gerenciadorProcesso->estadoExecucao.processoExec = processoEscalonado->idProcesso;
     AlocarProcesso(&gerenciadorProcesso->Cpu, processoEscalonado);
-    gerenciadorProcesso->Cpu.PC_Atual--;
+    // gerenciadorProcesso->Cpu.PC_Atual--;
 }
 
 int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade){

@@ -8,6 +8,7 @@
 // A tabela de Processos será um vetor do tipo processo
 typedef struct tabelaDeProcessos {
     Processo processos[50];
+    int quantidadeDeProcessos;
 }TabelaDeProcessos;
 
 #endif
