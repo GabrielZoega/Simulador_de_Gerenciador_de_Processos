@@ -46,6 +46,8 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
             desbloqueiaProcessos(gerenciadorProcesso, &filaDePrioridades);
             if(escalonador == FILA_DE_PRIORIDADE){
             	confereFatiaQuantum(gerenciadorProcesso);
+            }else if(escalonador == ROUND_ROBIN){
+            	escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
             }
         }else if(comandoEntrada == 'I'){
             
@@ -316,7 +318,6 @@ void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso){
 int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade){
     //processo pai inicia com prioridade 0(mais alta)
 	int idProcessoNaoEscalonado = gerenciadorProcesso->estadoExecucao.processoExec;
-	enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
 
 	Processo *processoEscalonado;
     int idProcessoEscalonado;
@@ -346,6 +347,8 @@ int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDeP
         processoEscalonado =  &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]);
     
     }else return -1;
+
+	enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
 
     if(processoEscalonado->prioridade == 0){
         processoEscalonado->prioridade = 1;
@@ -387,7 +390,7 @@ void enfileiraFilaDePrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDe
  * precisa voltar para o estado pronto, ou seja, quando ele não vai para
  * o estado bloqueado ou terminou de executar. Caso seja um desses casos,
  * o indiceCpu deve ser passado como null. */
-int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu){
+int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu){
     int indice;
     /* Retira o primeiro da fila para executar. */
     indice = FDesenfileira(&(estP->processosP));
