@@ -28,12 +28,29 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
 
 //Coloca o que esta na cpu no processo
 void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo){
-    processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * cpu->tamanhoMemoriaSimulada);
-    processo->tamanhoMemoriaDoProcesso = cpu->tamanhoMemoriaSimulada;
-    for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
-        processo->memoriaDoProcesso[i] = cpu->MemoriaSimulada[i];
-    }
+	if(cpu->MemoriaSimulada != NULL){
+		processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * cpu->tamanhoMemoriaSimulada);
+		processo->tamanhoMemoriaDoProcesso = cpu->tamanhoMemoriaSimulada;
+		for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
+			processo->memoriaDoProcesso[i] = cpu->MemoriaSimulada[i];
+		}
+	}
 }
+
+void alocarMemoriaCpu(CPU *cpu, Processo *processo){
+	if(processo->memoriaDoProcesso != NULL){
+		if(cpu->MemoriaSimulada != NULL){
+			free(cpu->MemoriaSimulada);
+			cpu->MemoriaSimulada = NULL;
+		}
+		cpu->MemoriaSimulada = (int*) malloc(sizeof(int) * processo->tamanhoMemoriaDoProcesso);
+		cpu->tamanhoMemoriaSimulada = processo->tamanhoMemoriaDoProcesso;
+		for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
+			cpu->MemoriaSimulada[i] = processo->memoriaDoProcesso[i];
+		}
+	}
+}
+
 
 void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo){
     cpu->tamanhoMemoriaSimulada = processo->tamanhoMemoriaDoProcesso;

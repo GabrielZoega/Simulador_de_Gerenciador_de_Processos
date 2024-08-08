@@ -18,6 +18,7 @@ typedef struct CPU{
 void inicializaCPU(CPU *cpu);
 void AlocarProcesso(CPU *cpu, Processo *novoprocesso);
 void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo);
+void alocarMemoriaCpu(CPU *cpu, Processo *processo);
 void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo);
 void alocarVetorPrograma(CPU *cpu, Processo *processo);
 void copiarVetorPrograma(CPU *cpu, Processo *processo);

@@ -232,22 +232,22 @@ void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo,
     novoProcesso.idProcesso = gerenciadorProcesso->Cpu.idprocesso;
     
     if(processoAntigo->vetorPrograma != NULL) {
-        processoAntigo->vetorPrograma = NULL;
         free(processoAntigo->vetorPrograma);
+        processoAntigo->vetorPrograma = NULL;
     }
     processoAntigo->vetorPrograma = NULL;
     copiarVetorPrograma(&(gerenciadorProcesso->Cpu), &novoProcesso);
 
     gerenciadorProcesso->Cpu.PC_Atual = -1;
     if(gerenciadorProcesso->Cpu.MemoriaSimulada != NULL){
-        gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
         free(gerenciadorProcesso->Cpu.MemoriaSimulada);
+        gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
     }
-    gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
+//    gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
     gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada = novoProcesso.tamanhoMemoriaDoProcesso;
 }
 
-void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado){
+void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador){
 
 	//atualiza os dados do processo em execucao na tabela de processos e passa para a fila de estado pronto ou bloqueado
 	Processo *processoNaoEscalonado = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
@@ -260,9 +260,12 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     if(processoNaoEscalonado->estado == BLOQUEADO){
 		FEnfileira(&(gerenciadorProcesso->estadoBloqueado.processosB), processoNaoEscalonado->idProcesso);
     }else if(processoNaoEscalonado->estado == EM_EXECUCAO){
-		if(strcmp(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "T") != 0){
+    	if(processoNaoEscalonado->idProcesso >= 0){
             FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), processoNaoEscalonado->idProcesso);
             printf("ID Enfileirado TC: %d\n", gerenciadorProcesso->Cpu.idprocesso);
+        }else{
+        	if(escalonador == ROUND_ROBIN)
+        		processoEscalonado->programCounter--;
         }
     }
 
@@ -279,6 +282,7 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     //muda o processoEscalonado para o estado de execucao
     processoEscalonado->estado = EM_EXECUCAO;
 	gerenciadorProcesso->estadoExecucao.processoExec = processoEscalonado->idProcesso;
+	alocarMemoriaCpu(&(gerenciadorProcesso->Cpu), processoEscalonado);
     AlocarProcesso(&gerenciadorProcesso->Cpu, processoEscalonado);
     // gerenciadorProcesso->Cpu.PC_Atual--;
 }
@@ -376,21 +380,21 @@ int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDeP
 
     if(processoEscalonado->prioridade == 0){
         processoEscalonado->prioridade = 1;
-        trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE);
 
     }else if(processoEscalonado->prioridade == 1 && processoEscalonado->tempoUsadoCPU > 1){
         processoEscalonado->prioridade = 2;
-        trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE);
 
     }else if(processoEscalonado->prioridade == 2 && processoEscalonado->tempoUsadoCPU > 3){
         processoEscalonado->prioridade = 3;
-        trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE);
 
     }else if(processoEscalonado->prioridade == 3 && processoEscalonado->tempoUsadoCPU > 7){
-    	trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+    	trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE);
 
     }else{
-    	trocaDeContexto(gerenciadorProcesso, processoEscalonado);
+    	trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE);
     }
 	return 0;
 }
@@ -442,7 +446,7 @@ void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePriorida
 	case ROUND_ROBIN:
 		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec, gerenciadorProcesso);
 		if(idProcessoEscalonado >= 0)
-			trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]));
+			trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]), ROUND_ROBIN);
 		break;
 	default:
 		break;

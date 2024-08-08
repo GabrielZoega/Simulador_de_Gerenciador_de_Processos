@@ -44,7 +44,7 @@ void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador
 void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade);
 void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade);
 void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador);
-void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado);
+void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador);
 void desbloqueiaProcessos(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade);
 void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso);
 int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade);
