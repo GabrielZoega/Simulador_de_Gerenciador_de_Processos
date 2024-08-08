@@ -13,7 +13,14 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
     cpu->PC_Atual = novoprocesso->programCounter; //PC atualizado
     cpu->FatiaQuantum = 0;
     
+    // if (cpu->VetorDeProgramas != NULL){
+    //     free(cpu->VetorDeProgramas);
+    //     cpu->VetorDeProgramas = NULL;
+    // }
+
+    //if (novoprocesso->vetorPrograma == NULL) printf("--- ERRRRRRRRRO ---\n");
     for(i = 1; novoprocesso->vetorPrograma[i-1][0] != 'T'; i++); //printf("na CPU: %s", novoprocesso->vetorPrograma[i-1]); //calcula numero de instrucoes em i
+    //printf("--- ENTROU ALOCAR PROCESSO ---\n");
    
     cpu->VetorDeProgramas = (char**) malloc (sizeof(char*) * i);
     for (int j = 0; j < i; j++)
@@ -48,6 +55,7 @@ void alocarMemoriaCpu(CPU *cpu, Processo *processo){
 		for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
 			cpu->MemoriaSimulada[i] = processo->memoriaDoProcesso[i];
 		}
+        //printf("--- ENTROU ALOCAR MEMORIA CPU ---\n");
 	}
 }
 

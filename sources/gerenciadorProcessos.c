@@ -38,6 +38,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
 //        printf("Entrou no filho: %c\n", comandoEntrada);
 
         if(comandoEntrada == 'U'){
+            //printf("--- ENTROU U ---\n");
         	printf("Processo Cpu: %d\n", gerenciadorProcesso->Cpu.idprocesso);
         	printf("Processo execucao: %d\n", gerenciadorProcesso->estadoExecucao.processoExec);
             executaInstrucao(gerenciadorProcesso, &IDS, escalonador, &filaDePrioridades);
@@ -47,7 +48,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
             if(escalonador == FILA_DE_PRIORIDADE){
             	confereFatiaQuantum(gerenciadorProcesso);
             }else if(escalonador == ROUND_ROBIN){
-            	if(gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos > 1){
+            	if((gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos > 1)){ //&& (gerenciadorProcesso->Tempo % 3 == 0)){
                     printf("--- RR CHAMADO ---\n");
                     decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador);
                 }
@@ -82,11 +83,14 @@ void init(Processo *processoSimulado, char *path, int *IDS){
 }
 
 void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade){
+    //printf("--- ENTROU EXECUTA INSTRUCAO ---!\n");
     char nome_do_arquivo[30];
     char instrucao;
     int x = 0, n = 0;
     gerenciadorProcesso->Cpu.FatiaQuantum++;
     
+    //printf("PC ATUAL: %d\n", gerenciadorProcesso->Cpu.PC_Atual);
+    //if (gerenciadorProcesso->Cpu.VetorDeProgramas == NULL) printf("Vetor de Programa NULO");
     sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c ", &instrucao);
     printf("Instrução lida: %s\n", gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual]);
 
@@ -133,8 +137,8 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
     case 'R':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %s", &instrucao, nome_do_arquivo);
         printf("Nome do Arquivo: %s\n", nome_do_arquivo);
-        printf("ENTROU R\n");
         instrucaoR(gerenciadorProcesso, nome_do_arquivo, IDS, escalonador);
+        printf("SAIU R\n");
         break;
     default:
         break;
@@ -155,8 +159,8 @@ void instrucaoD(CPU *Cpu, int x){
 }
 
 void instrucaoV(CPU *Cpu, int x, int n){
-    printf("--- V ---\n");
-    if(Cpu->MemoriaSimulada == NULL) printf("MEMORIA NULA NO V\n");
+    //printf("--- V ---\n");
+    //if(Cpu->MemoriaSimulada == NULL) printf("MEMORIA NULA NO V\n");
     Cpu->MemoriaSimulada[x] = n;
 }
 
@@ -235,16 +239,22 @@ void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo,
         free(processoAntigo->vetorPrograma);
         processoAntigo->vetorPrograma = NULL;
     }
-    processoAntigo->vetorPrograma = NULL;
+    if(processoAntigo->memoriaDoProcesso != NULL) {
+        free(processoAntigo->memoriaDoProcesso);
+        processoAntigo->memoriaDoProcesso = NULL;
+    }
+
+   
     copiarVetorPrograma(&(gerenciadorProcesso->Cpu), &novoProcesso);
+    //if(novoProcesso.vetorPrograma == NULL) printf("--- COPIAR PROGRAMA NULO ---\n");
+    //printf("VETOR DE PROGRAMA COPIADO 0: %s", novoProcesso.vetorPrograma[0]);
 
     gerenciadorProcesso->Cpu.PC_Atual = -1;
     if(gerenciadorProcesso->Cpu.MemoriaSimulada != NULL){
         free(gerenciadorProcesso->Cpu.MemoriaSimulada);
         gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
     }
-//    gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
-    gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada = novoProcesso.tamanhoMemoriaDoProcesso;
+    novoProcesso.memoriaDoProcesso = NULL;
 }
 
 void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador){
@@ -256,6 +266,7 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     processoNaoEscalonado->tempoUsadoCPU += gerenciadorProcesso->Cpu.FatiaQuantum;
     processoNaoEscalonado->tamanhoMemoriaDoProcesso = gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada;
     alocarMemoriaDoProcesso(&(gerenciadorProcesso->Cpu), processoNaoEscalonado);
+    alocarVetorPrograma(&(gerenciadorProcesso->Cpu), processoNaoEscalonado);
 
     if(processoNaoEscalonado->estado == BLOQUEADO){
 		FEnfileira(&(gerenciadorProcesso->estadoBloqueado.processosB), processoNaoEscalonado->idProcesso);
@@ -284,6 +295,7 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
 	gerenciadorProcesso->estadoExecucao.processoExec = processoEscalonado->idProcesso;
 	alocarMemoriaCpu(&(gerenciadorProcesso->Cpu), processoEscalonado);
     AlocarProcesso(&gerenciadorProcesso->Cpu, processoEscalonado);
+    //printf("--- FINAL TROCA DE CONTEXTO ---\n");
     // gerenciadorProcesso->Cpu.PC_Atual--;
 }
 
