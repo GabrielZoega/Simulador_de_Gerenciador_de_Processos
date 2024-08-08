@@ -47,9 +47,12 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
             if(escalonador == FILA_DE_PRIORIDADE){
             	confereFatiaQuantum(gerenciadorProcesso);
             }else if(escalonador == ROUND_ROBIN){
-            	decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador, 0);
+            	if(gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos > 1){
+                    printf("--- RR CHAMADO ---\n");
+                    decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador);
+                }
             }
-            printf("Quantidade de Processos na Tabela: %d\n", gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos);
+            printf("Quantidade de Processos na Tabela: %d\n\n", gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos);
             if(gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos <= 0) printf("Não ha mais processos em execução, digite M para encerrar o programa\n");
         }else if(comandoEntrada == 'I'){
             
@@ -85,6 +88,7 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
     gerenciadorProcesso->Cpu.FatiaQuantum++;
     
     sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c ", &instrucao);
+    printf("Instrução lida: %s\n", gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual]);
 
     switch (instrucao){
     case 'N':
@@ -99,8 +103,8 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
         break;
     case 'V':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        printf("ENTROU V\n");
         instrucaoV(&(gerenciadorProcesso->Cpu), x, n);
+        printf("ENTROU V\n");
         break;
     case 'A':
         sscanf(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "%c %d %d", &instrucao, &x, &n);
@@ -151,6 +155,8 @@ void instrucaoD(CPU *Cpu, int x){
 }
 
 void instrucaoV(CPU *Cpu, int x, int n){
+    printf("--- V ---\n");
+    if(Cpu->MemoriaSimulada == NULL) printf("MEMORIA NULA NO V\n");
     Cpu->MemoriaSimulada[x] = n;
 }
 
@@ -168,7 +174,7 @@ void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador
     processoAtual->estado = BLOQUEADO;
     processoAtual->tempoBloqueado = n;
 
-    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, 0);
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador);
     // trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -185,8 +191,8 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, Filas
     }
     processoAtual->idProcesso = -1;
 
-    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, 1);
-    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos -= 2;
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador);
+    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos --;
 	//trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[FDesenfileira(&(gerenciadorProcesso->estadoPronto.processosP))]));
 }
 
@@ -203,7 +209,11 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int e
     novoProcesso.inicioTempo = gerenciadorProcesso->Tempo;
     novoProcesso.estado = PRONTO;
     novoProcesso.prioridade = processoAtual->prioridade;
-    novoProcesso.programCounter = gerenciadorProcesso->Cpu.PC_Atual;
+
+    if (escalonador == ROUND_ROBIN) novoProcesso.programCounter = gerenciadorProcesso->Cpu.PC_Atual+1;
+    else novoProcesso.programCounter = gerenciadorProcesso->Cpu.PC_Atual;
+
+
     novoProcesso.tempoUsadoCPU = 0;
     novoProcesso.tempoBloqueado = 0;
     printf("ID Enfileirado: %d\n", novoProcesso.idProcesso);
@@ -241,7 +251,7 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
 
 	//atualiza os dados do processo em execucao na tabela de processos e passa para a fila de estado pronto ou bloqueado
 	Processo *processoNaoEscalonado = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec]);
-    gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos ++;
+    //gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos ++; // da problema no round robin
     processoNaoEscalonado->programCounter = gerenciadorProcesso->Cpu.PC_Atual;
     processoNaoEscalonado->tempoUsadoCPU += gerenciadorProcesso->Cpu.FatiaQuantum;
     processoNaoEscalonado->tamanhoMemoriaDoProcesso = gerenciadorProcesso->Cpu.tamanhoMemoriaSimulada;
@@ -249,11 +259,22 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
 
     if(processoNaoEscalonado->estado == BLOQUEADO){
 		FEnfileira(&(gerenciadorProcesso->estadoBloqueado.processosB), processoNaoEscalonado->idProcesso);
-    }else if(processoNaoEscalonado->estado == PRONTO){
-		FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), processoNaoEscalonado->idProcesso);
+    }else if(processoNaoEscalonado->estado == EM_EXECUCAO){
+		if(strcmp(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "T") != 0){
+            FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), processoNaoEscalonado->idProcesso);
+            printf("ID Enfileirado TC: %d\n", gerenciadorProcesso->Cpu.idprocesso);
+        }
     }
-    free(gerenciadorProcesso->Cpu.VetorDeProgramas);
-    free(gerenciadorProcesso->Cpu.MemoriaSimulada);
+
+    // if(gerenciadorProcesso->Cpu.VetorDeProgramas != NULL){
+    //     gerenciadorProcesso->Cpu.VetorDeProgramas = NULL;
+    //     free(gerenciadorProcesso->Cpu.VetorDeProgramas);
+    // }
+
+    // if (gerenciadorProcesso->Cpu.MemoriaSimulada){
+    //     gerenciadorProcesso->Cpu.MemoriaSimulada = NULL;
+    //     free(gerenciadorProcesso->Cpu.MemoriaSimulada);
+    // }
 
     //muda o processoEscalonado para o estado de execucao
     processoEscalonado->estado = EM_EXECUCAO;
@@ -318,7 +339,7 @@ void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso){
 	}
 }
 
-int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int flagT){
+int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade){
     //processo pai inicia com prioridade 0(mais alta)
 	int idProcessoNaoEscalonado = gerenciadorProcesso->estadoExecucao.processoExec;
 
@@ -351,7 +372,7 @@ int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDeP
     
     }else return -1;
 
-    if (flagT != 1) enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
+    if(strcmp(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "T") != 0) enfileiraFilaDePrioridade(gerenciadorProcesso, filasDePrioridade, idProcessoNaoEscalonado);
 
     if(processoEscalonado->prioridade == 0){
         processoEscalonado->prioridade = 1;
@@ -393,7 +414,7 @@ void enfileiraFilaDePrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDe
  * precisa voltar para o estado pronto, ou seja, quando ele não vai para
  * o estado bloqueado ou terminou de executar. Caso seja um desses casos,
  * o indiceCpu deve ser passado como null. */
-int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu){
+int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu, GerenciadorProcesso *gerenciadorProcesso){
     int indice;
     /* Retira o primeiro da fila para executar. */
     if(!FEhVazia(&(estP->processosP))){
@@ -401,22 +422,25 @@ int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu){
 
     }else indice = -1;
 
-    if (indiceCpu >= 0)
-        /* Coloca o que estava executando ao final da fila. */
-        FEnfileira(&(estP->processosP), indiceCpu);
+    //if (indiceCpu >= 0)
+    //    /* Coloca o que estava executando ao final da fila. */
+    //    if(strcmp(gerenciadorProcesso->Cpu.VetorDeProgramas[gerenciadorProcesso->Cpu.PC_Atual], "T") != 0){
+    //        FEnfileira(&(estP->processosP), indiceCpu);
+    //        printf("ID Enfileirado RR: %d", gerenciadorProcesso->Cpu.idprocesso);
+    //    }
 
     /* Retorna o índice do que deve executar atualmente. */
     printf("ID Desinfileirado: %d \n", indice);
     return indice;
 }
 
-void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador, int flagT){
+void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador){
 	switch(escalonador){
 	case FILA_DE_PRIORIDADE:
-		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade, flagT);
+		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade);
 		break;
 	case ROUND_ROBIN:
-		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec);
+		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec, gerenciadorProcesso);
 		if(idProcessoEscalonado >= 0)
 			trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]));
 		break;
