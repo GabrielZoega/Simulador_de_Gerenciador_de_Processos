@@ -7,6 +7,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
         gerenciadorProcesso->tabelaProcessos.processos[i].idProcesso = -1;
     }
     gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos = 1;
+    gerenciadorProcesso->Tempo = 0;
 
     //Inicializa as filas
     //Filas de prioridade
@@ -53,7 +54,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
                 if(escalonador == FILA_DE_PRIORIDADE){
                     confereFatiaQuantum(gerenciadorProcesso, i);
                 }else if(escalonador == ROUND_ROBIN){
-                    if((gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos > 1)){ //&& (gerenciadorProcesso->Tempo % 3 == 0)){
+                    if((gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos > 1)){
                         //printf("--- RR CHAMADO ---\n");
                         decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador, i);
                     }
@@ -316,7 +317,7 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
 
     //muda o processoEscalonado para o estado de execucao
     processoEscalonado->estado = EM_EXECUCAO;
-	gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual] = processoEscalonado->idProcesso;
+	gerenciadorProcesso->estadoExecucao.processoExec[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))] = processoEscalonado->idProcesso;
 	alocarMemoriaCpu(&(gerenciadorProcesso->vetorCPUS.processadores[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))]), processoEscalonado);
     AlocarProcesso(&gerenciadorProcesso->vetorCPUS.processadores[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))], processoEscalonado);
     gerenciadorProcesso->vetorCPUS.ultimaCpuUsada = selecionaCPU(&(gerenciadorProcesso->vetorCPUS));
@@ -354,7 +355,7 @@ void desbloqueiaProcessos(GerenciadorProcesso *gerenciadorProcesso, FilasDePrior
 }
 
 void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso, int cpuAtual){
-	Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]);
+    Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]);
 	if(processoAtual->prioridade == 0){
 		if(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].FatiaQuantum >= 1){
 			processoAtual->prioridade = 1;
@@ -380,6 +381,7 @@ void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso, int cpuAtual)
 			processoAtual->prioridade = 2;
 		}
 	}
+	printf("Entrou aqui\n");
 }
 
 int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int cpuAtual){

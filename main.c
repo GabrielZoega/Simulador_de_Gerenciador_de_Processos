@@ -5,7 +5,7 @@
 int main(){
     GerenciadorProcesso gerenciadorProcesso;
 
-    int numProcessadores;
+    printf("\e[1;1H\e[2J");
     printf("Digite o numero de processadores para a execucao: ");
     scanf("%d", &(gerenciadorProcesso.vetorCPUS.numeroDeProcessadores));
     CPU CPUS[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
@@ -25,6 +25,7 @@ int main(){
     int pipeRetorno = pipe(fd);
     int opcao, escalonador;
     
+    printf("\e[1;1H\e[2J");
     printf("\nEscolha o escalonador para o gerenciador de processos:\n\n");
 	printf("Digite '1' para usar Fila de Prioridade\n");
 	printf("Digite '2' para usar Round Robin\n");
