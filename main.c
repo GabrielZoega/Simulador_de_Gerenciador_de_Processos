@@ -4,7 +4,22 @@
 
 int main(){
     GerenciadorProcesso gerenciadorProcesso;
-    inicializaCPU(&(gerenciadorProcesso.Cpu));
+
+    int numProcessadores;
+    printf("Digite o numero de processadores para a execucao: ");
+    scanf("%d", &(gerenciadorProcesso.vetorCPUS.numeroDeProcessadores));
+    CPU CPUS[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
+    gerenciadorProcesso.vetorCPUS.processadores = CPUS;
+    int EXEC[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
+    gerenciadorProcesso.estadoExecucao.processoExec = EXEC;
+
+    // Inicializando as CPUS
+    int i;
+    for(i = 0; i < gerenciadorProcesso.vetorCPUS.numeroDeProcessadores; i++){
+        inicializaCPU(&(gerenciadorProcesso.vetorCPUS.processadores[i]));
+        //if (gerenciadorProcesso.vetorCPUS.processadores[i].MemoriaSimulada == NULL) printf("NULL\n");
+    }
+
     int fd[2]; // File descriptors pro Pipe
     int pid; // Variavel para armazenar o pid
     int pipeRetorno = pipe(fd);

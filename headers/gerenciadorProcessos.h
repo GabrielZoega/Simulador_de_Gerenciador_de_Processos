@@ -10,6 +10,7 @@
 #include "tabelaDeProcessos.h"
 #include "processoSimulado.h"
 #include "pipe.h"
+#include "multiplosProcessadores.h"
 
 #include "unistd.h"
 
@@ -25,7 +26,7 @@ typedef struct filasDePrioridade{
 
 typedef struct gerenciadorProcesso{
     int Tempo;
-    CPU Cpu;
+    VetorCPUS vetorCPUS;
     TabelaDeProcessos tabelaProcessos;
     EstadoPronto estadoPronto;
     EstadoBloqueado estadoBloqueado;
@@ -34,22 +35,22 @@ typedef struct gerenciadorProcesso{
 
 void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador);
 void init(Processo *processoSimulado, char *path, int *IDS);
-void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade);
+void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
 void instrucaoN(CPU *cpu, int n);
 void instrucaoD(CPU *cpu, int x);
 void instrucaoV(CPU *cpu, int x, int n);
 void instrucaoA(CPU *cpu, int x, int n);
 void instrucaoS(CPU *cpu, int x, int n);
-void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade);
-void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade);
-void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade);
-void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador);
-void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador);
+void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
+void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
+void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
+void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador, int cpuAtual);
+void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador, int cpuAtual);
 void desbloqueiaProcessos(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade);
-void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso);
-int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade);
+void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso, int cpuAtual);
+int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int cpuAtual);
 void enfileiraFilaDePrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int idProcesso);
 int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu, GerenciadorProcesso *gerenciadorProcesso);
-void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador);
+void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador, int cpuAtual);
 
 #endif

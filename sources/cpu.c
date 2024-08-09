@@ -46,6 +46,7 @@ void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo){
 
 void alocarMemoriaCpu(CPU *cpu, Processo *processo){
 	if(processo->memoriaDoProcesso != NULL){
+        //printf("--- ENTROU ALOCAR MEMORIA CPU ---\n");
 		if(cpu->MemoriaSimulada != NULL){
 			free(cpu->MemoriaSimulada);
 			cpu->MemoriaSimulada = NULL;
@@ -55,7 +56,6 @@ void alocarMemoriaCpu(CPU *cpu, Processo *processo){
 		for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
 			cpu->MemoriaSimulada[i] = processo->memoriaDoProcesso[i];
 		}
-        //printf("--- ENTROU ALOCAR MEMORIA CPU ---\n");
 	}
 }
 

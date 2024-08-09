@@ -5,7 +5,7 @@
 #include "stdio.h"
 
 typedef struct EstadoExecucao {
-    int processoExec;
+    int *processoExec;
 } EstadoExecucao;
 
 #endif
