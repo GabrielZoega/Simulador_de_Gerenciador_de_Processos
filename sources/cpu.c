@@ -5,6 +5,7 @@ void inicializaCPU(CPU *cpu){
     cpu->MemoriaSimulada = NULL;
     cpu->VetorDeProgramas = NULL;
     cpu->FatiaQuantum = 0;
+    cpu->cpuOcupada = DESOCUPADA;
 }
 
 void AlocarProcesso(CPU *cpu, Processo *novoprocesso){

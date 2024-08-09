@@ -6,6 +6,9 @@
 #include <string.h>
 #include "processoSimulado.h"
 
+#define OCUPADA 1
+#define DESOCUPADA 0
+
 typedef struct CPU{
     int PC_Atual; //valor atual de contador de programa,aponta para um endereço de memória
     char **VetorDeProgramas; //Vetor de Programas
@@ -13,6 +16,7 @@ typedef struct CPU{
     int idprocesso; //id do processo em execução da cpu
     int FatiaQuantum; // deve guardar o número de unidades de tempo usadas
     int tamanhoMemoriaSimulada;
+    int cpuOcupada;
 }CPU;
 
 void inicializaCPU(CPU *cpu);
