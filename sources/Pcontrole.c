@@ -16,8 +16,6 @@ void Pcontrole(FILE *arq, int opcao, int *fd){
             scanf("%c", &comandoSaida);
             getchar();
 
-//            printf("Saiu do pai: %c\n", comandoSaida);
-
             // Escrevendo a string no pipe
             EscreverPipe(fd[1], &comandoSaida);
             if((comandoSaida == 'M') | ((comandoSaida != 'U') & (comandoSaida != 'I'))) break;
@@ -51,5 +49,4 @@ void Pcontrole(FILE *arq, int opcao, int *fd){
         }
     }
 
-    // return retorno;
 }

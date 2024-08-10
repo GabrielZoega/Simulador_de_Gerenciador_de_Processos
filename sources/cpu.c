@@ -13,16 +13,9 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
     cpu->idprocesso = novoprocesso->idProcesso; //id do processo em execução
     cpu->PC_Atual = novoprocesso->programCounter; //PC atualizado
     cpu->FatiaQuantum = 0;
-    
-    // if (cpu->VetorDeProgramas != NULL){
-    //     free(cpu->VetorDeProgramas);
-    //     cpu->VetorDeProgramas = NULL;
-    // }
 
-    //if (novoprocesso->vetorPrograma == NULL) printf("--- ERRRRRRRRRO ---\n");
-    for(i = 1; novoprocesso->vetorPrograma[i-1][0] != 'T'; i++); //printf("na CPU: %s", novoprocesso->vetorPrograma[i-1]); //calcula numero de instrucoes em i
-    //printf("--- ENTROU ALOCAR PROCESSO ---\n");
-   
+    for(i = 1; novoprocesso->vetorPrograma[i-1][0] != 'T'; i++);
+    
     cpu->VetorDeProgramas = (char**) malloc (sizeof(char*) * i);
     for (int j = 0; j < i; j++)
         cpu->VetorDeProgramas[j] = (char*) malloc (sizeof (char) * TAM_INST);
@@ -47,7 +40,6 @@ void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo){
 
 void alocarMemoriaCpu(CPU *cpu, Processo *processo){
 	if(processo->memoriaDoProcesso != NULL){
-        //printf("--- ENTROU ALOCAR MEMORIA CPU ---\n");
 		if(cpu->MemoriaSimulada != NULL){
 			free(cpu->MemoriaSimulada);
 			cpu->MemoriaSimulada = NULL;
@@ -68,7 +60,6 @@ void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo){
     }
 }
 
-//TODO conferir se precisa liberar a memoria da cpu antes de copiar as instrucoes
 void alocarVetorPrograma(CPU *cpu, Processo *processo){
     int i = 1;
 

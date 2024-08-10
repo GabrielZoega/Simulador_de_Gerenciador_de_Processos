@@ -5,7 +5,7 @@
 int main(){
     GerenciadorProcesso gerenciadorProcesso;
 
-    printf("\e[1;1H\e[2J");
+    system("clear");
     printf("\nDigite o numero de processadores para a execucao: ");
     scanf("%d", &(gerenciadorProcesso.vetorCPUS.numeroDeProcessadores));
     CPU CPUS[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
@@ -26,7 +26,7 @@ int main(){
     int pipeRetorno = pipe(fd);
     int opcao, escalonador;
     
-    printf("\e[1;1H\e[2J");
+    system("clear");
     printf("\nEscolha o escalonador para o gerenciador de processos:\n\n");
 	printf("Digite '1' para usar Fila de Prioridade\n");
 	printf("Digite '2' para usar Round Robin\n");
@@ -34,7 +34,7 @@ int main(){
 	printf("Escalonador escolhido: ");
 	scanf("%d", &escalonador);
 
-	printf("\e[1;1H\e[2J");
+	system("clear");
 
 	if (escalonador != FILA_DE_PRIORIDADE && escalonador != ROUND_ROBIN ){
 		printf("Programa encerrado.\n\n");

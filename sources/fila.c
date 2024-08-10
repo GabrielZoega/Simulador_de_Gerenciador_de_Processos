@@ -35,7 +35,7 @@ int FDesenfileira(TFila* pFila) {
     pFila->pFrente->pProx = pAux->pProx;
 
     if (pFila->pTras == pAux) {
-        pFila->pTras = pFila->pFrente; // Atualiza pTras se estamos removendo o último elemento
+        pFila->pTras = pFila->pFrente; // Atualiza pTras se estamos removendo o ultimo elemento
     }
 
     idProcesso = pAux->indice;

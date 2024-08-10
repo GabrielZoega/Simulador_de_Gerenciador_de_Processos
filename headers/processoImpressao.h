@@ -5,7 +5,6 @@
 #include "terminal_format.h"
 
 //Funções para a impressão
-void MenuImpressao(GerenciadorProcesso *gerenciadorProcesso);
 void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso);
 void ImprimeCPU(CPU *cpu);
 void ImprimeMemoriaSimuladaCPU(CPU *cpu);

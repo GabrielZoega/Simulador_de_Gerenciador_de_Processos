@@ -3,53 +3,8 @@
 
 //Funções para a impressão
 
-void MenuImpressao(GerenciadorProcesso *gerenciadorProcesso){
-    //Ideia para o Menu - Tentar engoblar todos os campos definidos
-    int opcao = 0;
-    printf(INICIO2 "\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MENU DE IMPRESSAO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n" FINAL, BOLD, VERMELHO);
-    printf(INICIO1 "1 - Apresentar Tudo\n", BOLD);
-    printf("2 - Tempo de uso atual do sistema\n");
-    printf("3 - Processos em estado bloqueado\n");
-    printf("4 - Processos em estado pronto\n");
-    printf("5 - Processos em estado de execução\n");
-    printf("6 - Informações sobre a CPU no momento atual\n");
-    printf("7 - Tabela de Processos atual\n");
-    printf("8 - Sair da impressão\n" FINAL);
-    printf(INICIO2 "================================================================================================================================\n" FINAL, BOLD, VERMELHO);
-    printf(INICIO2 "Escolha uma opção:" FINAL " ", BOLD, UNDERLINE);
-    scanf("%d",&opcao);
-
-    if(opcao==1){
-        ApresentarTudo(gerenciadorProcesso);
-    }else if(opcao==2){
-
-        printf(INICIO2 "\n\nTempo de uso do sistema no momento atual:" FINAL " %d unidades de tempo\n", BOLD, UNDERLINE, gerenciadorProcesso->Tempo);
-
-    }else if(opcao==3){
-
-        ImpressaoEstadosBloqueados(gerenciadorProcesso);
-
-    }else if(opcao==4){
-
-        ImpressaoEstadosProntos(gerenciadorProcesso);
-
-    }else if(opcao==5){
-
-        ImpressaoEstadosExecucao(gerenciadorProcesso);
-
-    }else if(opcao==6){
-
-//        ImprimeCPU(&(gerenciadorProcesso->Cpu);
-
-    }else if(opcao==7){
-
-        ImpressaoTabelaDeProcessos(gerenciadorProcesso);
-    }
-}
-//
-
 void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso){
-	printf("\e[1;1H\e[2J");
+	system("clear");
     printf("\n\n" INICIO2 "╒══════════════════════════════════════════════════════╡ ESTADO DO SISTEMA ╞════════════════════════════════════════════════════════╕" FINAL "\n\n", BOLD, FUNDO_AZUL);
     printf(INICIO2 "Tempo de uso do sistema no momento atual:" FINAL" %d unidades de tempo", BOLD, UNDERLINE, gerenciadorProcesso->Tempo);
     printf("\n\n" INICIO3 "Processos em estado bloqueado:" FINAL "\n", BOLD, UNDERLINE, FUNDO_VERMELHO);
