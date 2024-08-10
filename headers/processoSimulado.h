@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "terminal_format.h"
 
 typedef enum Estados_de_processos{
     BLOQUEADO,

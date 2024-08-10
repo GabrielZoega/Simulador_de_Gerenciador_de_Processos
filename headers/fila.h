@@ -21,5 +21,6 @@ void FFVazia(TFila* pFila);
 int FEhVazia(TFila* pFila);
 int FEnfileira(TFila* pFila, int indice);
 int FDesenfileira(TFila* pFila);
+void ImprimeFila(TFila* fila);
 
 #endif

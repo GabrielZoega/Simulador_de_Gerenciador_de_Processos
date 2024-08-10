@@ -42,3 +42,17 @@ int FDesenfileira(TFila* pFila) {
     free(pAux);
     return idProcesso;
 }
+
+void ImprimeFila(TFila* fila) {
+    if (FEhVazia(fila)) {
+        printf("A fila está vazia.\n");
+        return;
+    }
+
+    Apontador atual = fila->pFrente;
+    while (atual != NULL) {
+        printf("pid: %d ", atual->indice);
+        atual = atual->pProx;
+    }
+    printf("\n");
+}

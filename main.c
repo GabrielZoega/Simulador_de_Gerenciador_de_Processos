@@ -6,17 +6,18 @@ int main(){
     GerenciadorProcesso gerenciadorProcesso;
 
     printf("\e[1;1H\e[2J");
-    printf("Digite o numero de processadores para a execucao: ");
+    printf("\nDigite o numero de processadores para a execucao: ");
     scanf("%d", &(gerenciadorProcesso.vetorCPUS.numeroDeProcessadores));
     CPU CPUS[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
     gerenciadorProcesso.vetorCPUS.processadores = CPUS;
     int EXEC[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
     gerenciadorProcesso.estadoExecucao.processoExec = EXEC;
 
-    // Inicializando as CPUS
+    // Inicializando as CPUS e estados de execucao
     int i;
     for(i = 0; i < gerenciadorProcesso.vetorCPUS.numeroDeProcessadores; i++){
         inicializaCPU(&(gerenciadorProcesso.vetorCPUS.processadores[i]));
+        EXEC[i] = -1;
         //if (gerenciadorProcesso.vetorCPUS.processadores[i].MemoriaSimulada == NULL) printf("NULL\n");
     }
 
@@ -40,7 +41,7 @@ int main(){
 		return 0;
 	}
 
-    printf("\n\nEscolha a forma de entrar com os comandos do processo controle:\n\n");
+    printf("\nEscolha a forma de entrar com os comandos do processo controle:\n\n");
     printf("Digite '1' para entrar pelo terminal \n");
     printf("Digite '2' para entrar por um arquivo \n");
     printf("Digite '0' para encerrar o programa \n");
