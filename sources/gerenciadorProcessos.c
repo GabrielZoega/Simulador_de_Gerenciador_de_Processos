@@ -98,7 +98,7 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
     
     if (gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas == NULL) return;
     sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c ", &instrucao);
-
+    printf("Instrucao: %c\n", instrucao);
     switch (instrucao){
     case 'N':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d", &instrucao, &n);
