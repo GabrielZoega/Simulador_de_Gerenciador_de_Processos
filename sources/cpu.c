@@ -14,8 +14,15 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
     cpu->PC_Atual = novoprocesso->programCounter; //PC atualizado
     cpu->FatiaQuantum = 0;
 
+    if(cpu->VetorDeProgramas != NULL){
+		int i;
+		for(i = 1; strcmp(cpu->VetorDeProgramas[i-1], "T") != 0; i++);
+		for (int j = 0; j < i; j++) free(cpu->VetorDeProgramas[j]);
+		free(cpu->VetorDeProgramas);
+		cpu->VetorDeProgramas = NULL;
+	}
+
     for(i = 1; novoprocesso->vetorPrograma[i-1][0] != 'T'; i++);
-    
     cpu->VetorDeProgramas = (char**) malloc (sizeof(char*) * i);
     for (int j = 0; j < i; j++)
         cpu->VetorDeProgramas[j] = (char*) malloc (sizeof (char) * TAM_INST);
@@ -53,16 +60,24 @@ void alocarMemoriaCpu(CPU *cpu, Processo *processo){
 }
 
 
-void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo){
-    cpu->tamanhoMemoriaSimulada = processo->tamanhoMemoriaDoProcesso;
-    for(int i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
-        cpu->MemoriaSimulada[i] = processo->memoriaDoProcesso[i];
-    }
-}
+// void copiarMemoriaDoProcesso(CPU *cpu, Processo *processo){
+//     cpu->tamanhoMemoriaSimulada = processo->tamanhoMemoriaDoProcesso;
+//     for(int i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
+//         cpu->MemoriaSimulada[i] = processo->memoriaDoProcesso[i];
+//     }
+// }
 
 void alocarVetorPrograma(CPU *cpu, Processo *processo){
-    int i = 1;
 
+    if(processo->vetorPrograma != NULL){
+    	int i;
+    	for(i = 1; strcmp(processo->vetorPrograma[i-1], "T") != 0; i++);
+    	for (int j = 0; j < i; j++) free(processo->vetorPrograma[j]);
+	    free(processo->vetorPrograma);
+        processo->vetorPrograma = NULL;
+    }
+
+    int i = 1;
     for(i = 1; strcmp(cpu->VetorDeProgramas[i-1], "T") != 0; i++); //calcula numero de instrucoes em i
 
     processo->vetorPrograma = (char**) malloc (sizeof(char*) * i);
@@ -81,7 +96,10 @@ void copiarVetorPrograma(CPU *cpu, Processo *processo){
     int i = 1;
 
     if(cpu->VetorDeProgramas != NULL){
-        free(cpu->VetorDeProgramas);
+        int i;
+    	for(i = 1; strcmp(cpu->VetorDeProgramas[i-1], "T") != 0; i++);
+    	for (int j = 0; j < i; j++) free(cpu->VetorDeProgramas[j]);
+	    free(cpu->VetorDeProgramas);
         cpu->VetorDeProgramas = NULL;
     }
     

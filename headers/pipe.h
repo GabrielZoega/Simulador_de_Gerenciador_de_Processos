@@ -10,6 +10,6 @@
 //fd = 1 será para escrita
 //pipe será um buffer que o processo filho & pai compartilham
 void EscreverPipe(int fd, char *caractere);
-void LerPipe(int fd, char *caractere);
+int LerPipe(int fd, char *caractere);
 
 #endif
