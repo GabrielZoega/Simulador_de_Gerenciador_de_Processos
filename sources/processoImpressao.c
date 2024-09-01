@@ -3,7 +3,7 @@
 
 //Funções para a impressão
 
-void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso){
+void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso, Memoria *memoria){
 	system("clear");
     printf("\n\n" INICIO2 "╒══════════════════════════════════════════════════════╡ ESTADO DO SISTEMA ╞════════════════════════════════════════════════════════╕" FINAL "\n\n", BOLD, FUNDO_AZUL);
     printf(INICIO2 "Tempo de uso do sistema no momento atual:" FINAL" %d unidades de tempo", BOLD, UNDERLINE, gerenciadorProcesso->Tempo);
@@ -18,6 +18,7 @@ void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso){
 
 	}
     ImpressaoTabelaDeProcessos(gerenciadorProcesso);
+    ImprimeMemoriaSimuladaCPU(memoria);
 
 
 }
@@ -64,10 +65,11 @@ void ImpressaoProcesso(Processo *processo){
 	}
 }
 
-void ImprimeMemoriaSimuladaCPU(CPU *cpu){
+void ImprimeMemoriaSimuladaCPU(Memoria *memoria){
     printf(INICIO2 "Conteúdo da memória simulada:" FINAL "\n", BOLD, FUNDO_VERDE_AGUA);
-    for(int i = 0; i < cpu->tamanhoMemoriaSimulada ; i++){
-        printf( "\t"INICIO2 "[%d] => %d" FINAL "\n", BOLD, VERDE_AGUA, i, cpu->MemoriaSimulada[i]);
+    for(int i = 0; i < memoria->tamanho ; i++){
+        if(memoria->vetorMemoria[i] == INT_MIN) printf( "\t"INICIO2 "[%d] => VAZIO" FINAL "\n", BOLD, VERDE_AGUA, i);
+        else printf( "\t"INICIO2 "[%d] => %d" FINAL "\n", BOLD, VERDE_AGUA, i, memoria->vetorMemoria[i]);
     }
 }
 
@@ -77,7 +79,7 @@ void ImprimeCPU(CPU *cpu){
 		printf(INICIO2 "PC => %d" FINAL "\n\n", BOLD, FUNDO_ROXO, cpu->PC_Atual);
 		printf(INICIO2 "Id Processo Atual => %d" FINAL "\n\n", BOLD, FUNDO_AMARELO, cpu->idprocesso);
 		printf(INICIO2 "Fatia de Quantum => %d" FINAL "\n\n", BOLD, FUNDO_VERMELHO, cpu->FatiaQuantum);
-		if(cpu->MemoriaSimulada != NULL) ImprimeMemoriaSimuladaCPU(cpu);
+		//if(cpu->MemoriaSimulada != NULL) ImprimeMemoriaSimuladaCPU(cpu);
     }else{
     	printf("Ociosa.\n");
     }

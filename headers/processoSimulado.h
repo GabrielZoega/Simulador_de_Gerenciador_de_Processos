@@ -14,6 +14,21 @@ typedef enum Estados_de_processos{
     EM_EXECUCAO
 }Estado;
 
+// Declarações Antigas
+// typedef struct processo{
+//     int idProcesso;
+//     int idProcessoPai;
+//     int programCounter;
+//     int prioridade;
+//     Estado estado;
+//     int inicioTempo;
+//     int tempoUsadoCPU;
+//     int *memoriaDoProcesso; //simula a memoria do processo simulado, eh feito um malloc com a instrucao N
+//     int tempoBloqueado; // O Gerenciador de processos ira diminuir esse int a cada unidade de tempo, quando o valor chegar a 0 significará que o processo deve ir para o estado pronto.
+//     char** vetorPrograma;
+//     int tamanhoMemoriaDoProcesso;
+// }Processo;
+
 typedef struct processo{
     int idProcesso;
     int idProcessoPai;
@@ -26,6 +41,9 @@ typedef struct processo{
     int tempoBloqueado; // O Gerenciador de processos ira diminuir esse int a cada unidade de tempo, quando o valor chegar a 0 significará que o processo deve ir para o estado pronto.
     char** vetorPrograma;
     int tamanhoMemoriaDoProcesso;
+    int inicioMemoria;
+    int inicioDisco;
+    int tempoUltimoAcessoAMemoria;
 }Processo;
 
 void lerInstrucoes(Processo *processo, char *pathProcesso);

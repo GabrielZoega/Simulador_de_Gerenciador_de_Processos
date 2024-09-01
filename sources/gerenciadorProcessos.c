@@ -1,7 +1,8 @@
 #include "../headers/gerenciadorProcessos.h"
 #include "../headers/processoImpressao.h"
+#include "../headers/nextFit.h"
 
-void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador){
+void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador, Memoria *memoria, int tecnicaAlocacao){
     //inicializa a tabela de processos
     int i;
     for (i = 0; i < 50; i++){
@@ -27,6 +28,7 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
     int IDS = 0;
     init(processoPaiSimulado, INIT, &IDS);
     AlocarProcesso(&gerenciadorProcesso->vetorCPUS.processadores[0], processoPaiSimulado);
+    gerenciadorProcesso->vetorCPUS.cpusSendoUtilizadas = 0;
     gerenciadorProcesso->vetorCPUS.cpusSendoUtilizadas++;
     gerenciadorProcesso->vetorCPUS.ultimaCpuUsada = 0;
     gerenciadorProcesso->vetorCPUS.processadores[0].cpuOcupada = OCUPADA;
@@ -47,13 +49,13 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
 
             for (i = 0; i < gerenciadorProcesso->vetorCPUS.numeroDeProcessadores; i++){
                 if(gerenciadorProcesso->vetorCPUS.processadores[i].cpuOcupada == DESOCUPADA) continue;
-                executaInstrucao(gerenciadorProcesso, &IDS, escalonador, &filaDePrioridades, i);
+                executaInstrucao(gerenciadorProcesso, &IDS, escalonador, &filaDePrioridades, i, memoria);
                 gerenciadorProcesso->vetorCPUS.processadores[i].PC_Atual++;
                 if(escalonador == FILA_DE_PRIORIDADE){
                     confereFatiaQuantum(gerenciadorProcesso, i);
                 }else if(escalonador == ROUND_ROBIN){
                     if((gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos > 1)){
-                        decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador, i);
+                        decideEscalonador(gerenciadorProcesso, &filaDePrioridades, escalonador, i, memoria);
                     }
                 }
             }
@@ -63,10 +65,10 @@ void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int es
 				printf("\n" INICIO3 "Não ha mais processos em execução, digite M para encerrar o programa" FINAL "\n", BOLD, VERMELHO, PISCAR);
 
         }else if(comandoEntrada == 'I'){
-        	ApresentarTudo(gerenciadorProcesso);
+        	ApresentarTudo(gerenciadorProcesso, memoria);
         	printf(INICIO2 "\nComandos:" FINAL "\n", BOLD, UNDERLINE);
         }else if(comandoEntrada == 'M'){
-        	ApresentarTudo(gerenciadorProcesso);
+        	ApresentarTudo(gerenciadorProcesso, memoria);
 			Asteriscos(FUNDO_VERMELHO);
             break;
         }
@@ -93,7 +95,7 @@ void init(Processo *processoSimulado, char *path, int *IDS){
     lerInstrucoes(processoSimulado, path);
 }
 
-void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual){
+void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual, Memoria *memoria){
     char nome_do_arquivo[30];
     char instrucao;
     int x = 0, n = 0;
@@ -105,78 +107,96 @@ void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int es
     switch (instrucao){
     case 'N':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d", &instrucao, &n);
-        instrucaoN(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), n);
+        instrucaoN(gerenciadorProcesso, n, cpuAtual, memoria);
+        gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;
         break;
     case 'D':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d", &instrucao, &x);
-        instrucaoD(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x);
+        instrucaoD(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, memoria);
+        gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;
         break;
     case 'V':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        instrucaoV(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, n);
+        instrucaoV(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, n, memoria);
+        gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;
         break;
     case 'A':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        instrucaoA(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, n);
+        instrucaoA(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, n, memoria);
+        gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;        
         break;
     case 'S':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d %d", &instrucao, &x, &n);
-        instrucaoS(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, n);
+        instrucaoS(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), x, n, memoria);
+        gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;
         break;
     case 'B':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d", &instrucao, &n);
-        instrucaoB(gerenciadorProcesso, n, escalonador, filasDePrioridade, cpuAtual);
+        instrucaoB(gerenciadorProcesso, n, escalonador, filasDePrioridade, cpuAtual, memoria);
         break;
     case 'T':
-        instrucaoT(gerenciadorProcesso, escalonador, filasDePrioridade, cpuAtual);
+        instrucaoT(gerenciadorProcesso, escalonador, filasDePrioridade, cpuAtual, memoria);
         break;
     case 'F':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %d", &instrucao, &n);
-        instrucaoF(gerenciadorProcesso, n, IDS, escalonador, filasDePrioridade, cpuAtual);
+        instrucaoF(gerenciadorProcesso, n, IDS, escalonador, filasDePrioridade, cpuAtual, memoria);
         break;
     case 'R':
         sscanf(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual], "%c %s", &instrucao, nome_do_arquivo);
-        instrucaoR(gerenciadorProcesso, nome_do_arquivo, IDS, escalonador, cpuAtual);
+        instrucaoR(gerenciadorProcesso, nome_do_arquivo, IDS, escalonador, cpuAtual, memoria);
         break;
     default:
         break;
     }
 }
 
-void instrucaoN(CPU *Cpu, int n){
-    if(Cpu->MemoriaSimulada != NULL){
-        free (Cpu->MemoriaSimulada);
-        Cpu->MemoriaSimulada = NULL;
-    }
-    Cpu->MemoriaSimulada = (int*) malloc(sizeof(int) * n);
-    Cpu->tamanhoMemoriaSimulada = n;
+void instrucaoN(GerenciadorProcesso *gerenciadorProcesso, int n, int cpuAtual, Memoria *memoria){
+    int enderecoInicio = -1;
+    //printf("ultimaPosicao: %d\n", memoria->ultimaPosicao);
+    nextFit(memoria, n, &memoria->ultimaPosicao, &enderecoInicio);
+    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].inicioMemoria = enderecoInicio;
+    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tamanhoMemoriaDoProcesso = n;
+    gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].inicioMemoriaProcessoAtual = enderecoInicio;
+    gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].tamanhoMemoriaProcessoAtual = n;
+    gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso].tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;
+
+    // if(Cpu->MemoriaSimulada != NULL){
+    //     free (Cpu->MemoriaSimulada);
+    //     Cpu->MemoriaSimulada = NULL;
+    // }
+    // Cpu->MemoriaSimulada = (int*) malloc(sizeof(int) * n);
+    // Cpu->tamanhoMemoriaSimulada = n;
 }
 
-void instrucaoD(CPU *Cpu, int x){
-    Cpu->MemoriaSimulada[x] = 0;
+void instrucaoD(CPU *cpu, int x, Memoria *memoria){
+    x += cpu->inicioMemoriaProcessoAtual;
+    memoria->vetorMemoria[x] = 0;
 }
 
-void instrucaoV(CPU *Cpu, int x, int n){
-    Cpu->MemoriaSimulada[x] = n;
+void instrucaoV(CPU *cpu, int x, int n, Memoria *memoria){
+    x += cpu->inicioMemoriaProcessoAtual;
+    memoria->vetorMemoria[x] = n;
 }
 
-void instrucaoA(CPU *Cpu, int x, int n){
-    Cpu->MemoriaSimulada[x] += n;
+void instrucaoA(CPU *cpu, int x, int n, Memoria *memoria){
+    x += cpu->inicioMemoriaProcessoAtual;
+    memoria->vetorMemoria[x] += n;
 }
 
-void instrucaoS(CPU *Cpu, int x, int n){
-    Cpu->MemoriaSimulada[x] -= n;
+void instrucaoS(CPU *cpu, int x, int n, Memoria *memoria){
+    x += cpu->inicioMemoriaProcessoAtual;
+    memoria->vetorMemoria[x] -= n;
 }
 
-void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual){
+void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual, Memoria *memoria){
     Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]);
     processoAtual->estado = BLOQUEADO;
     processoAtual->tempoBloqueado = n;
 
-    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, cpuAtual);
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, cpuAtual, memoria);
 }
 
-void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual){ 
+void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual, Memoria *memoria){ 
     Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]);
 	if(processoAtual->memoriaDoProcesso !=  NULL){
 		free(processoAtual->memoriaDoProcesso);
@@ -193,12 +213,17 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, Filas
     gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual] = -1;
     gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].cpuOcupada = DESOCUPADA;
 
-    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, cpuAtual);
+    for (int i = 0; i < gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].tamanhoMemoriaProcessoAtual; i++){
+        memoria->vetorMemoria[i + gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].inicioMemoriaProcessoAtual] = INT_MIN;
+    }
+    
+    
+    decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, cpuAtual, memoria);
     gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos --;
     printf("--- Quantidade de Processos Depois do T: %d ---\n", gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos);
 
     if (gerenciadorProcesso->vetorCPUS.numeroDeProcessadores > 1){
-        gerenciadorProcesso->vetorCPUS.cpusSendoUtilizadas--; // ACHO que aqui deveria diminuir o número de CPUS sendo utilizadas, pois uma instrução acabou aqui.
+        gerenciadorProcesso->vetorCPUS.cpusSendoUtilizadas--; // Diminuir o número de CPUS sendo utilizadas, pois uma instrução acabou aqui.
         if(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas != NULL){
             free(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas);
             gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas = NULL;
@@ -208,19 +233,21 @@ void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, Filas
 
 }
 
-void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual){
+void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual, Memoria *memoria){
     Processo *processoAtual = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]);
     Processo novoProcesso;
     novoProcesso.vetorPrograma = NULL;
 
     alocarVetorPrograma(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), &novoProcesso);
-    alocarMemoriaDoProcesso(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), &novoProcesso);
+    alocarMemoriaDoProcesso(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), &novoProcesso, memoria);
     novoProcesso.idProcesso = *IDS;
     (*IDS)++;
+    novoProcesso.tempoUltimoAcessoAMemoria = gerenciadorProcesso->Tempo;
     novoProcesso.idProcessoPai = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].idprocesso;
     novoProcesso.inicioTempo = gerenciadorProcesso->Tempo;
     novoProcesso.estado = PRONTO;
     novoProcesso.prioridade = processoAtual->prioridade;
+    //novoProcesso.inicioMemoria = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].inicioMemoriaProcessoAtual;
 
     if(gerenciadorProcesso->vetorCPUS.numeroDeProcessadores > 1){
         if (escalonador == ROUND_ROBIN) novoProcesso.programCounter = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual+2;
@@ -231,22 +258,29 @@ void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int e
         else novoProcesso.programCounter = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual;
     }
 
+    int enderecoInicio = -1;
+    n = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].tamanhoMemoriaProcessoAtual;
+    nextFit(memoria, n, &memoria->ultimaPosicao, &enderecoInicio);
+    
+    novoProcesso.inicioMemoria = enderecoInicio;
+    novoProcesso.tamanhoMemoriaDoProcesso = n;
 
     novoProcesso.tempoUsadoCPU = 0;
     novoProcesso.tempoBloqueado = 0;
     FEnfileira(&gerenciadorProcesso->estadoPronto.processosP, novoProcesso.idProcesso);
 
-    gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual += n + 1;
+    gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual += n;
     gerenciadorProcesso->tabelaProcessos.processos[novoProcesso.idProcesso] = novoProcesso;
     gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos++;
     printf("--- Quantidade de Processos Depois do F: %d ---\n", gerenciadorProcesso->tabelaProcessos.quantidadeDeProcessos);
 
+    printf("Endereco inicio: %d\n", gerenciadorProcesso->tabelaProcessos.processos[novoProcesso.idProcesso].inicioMemoria);
     if (gerenciadorProcesso->vetorCPUS.numeroDeProcessadores > 1){
-        decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, cpuAtual);
+        decideEscalonador(gerenciadorProcesso, filasDePrioridade, escalonador, cpuAtual, memoria);
     }
 }
 
-void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador, int cpuAtual){
+void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador, int cpuAtual, Memoria *memoria){
     Processo *processoAntigo = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]); 
     Processo novoProcesso;
     init(&novoProcesso, nome_do_arquivo, IDS);
@@ -269,24 +303,27 @@ void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo,
     copiarVetorPrograma(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), &novoProcesso);
     
     gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual = -1;
-    if(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].MemoriaSimulada != NULL){
-        free(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].MemoriaSimulada);
-        gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].MemoriaSimulada = NULL;
+    // TODO: pensar em como isso aqui vai funcionar, desalocar a memória desse processo? não será mais com o free, usar INT_MIN? Precisaria do tamanho que o processo ocupa na memória.
+    for (int i = 0; i < gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].tamanhoMemoriaProcessoAtual; i++){
+       memoria->vetorMemoria[i + gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].inicioMemoriaProcessoAtual] = INT_MIN; // acho que isso aqui resolve, desalocando a memória.
     }
     novoProcesso.memoriaDoProcesso = NULL;
 }
 
-void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador, int cpuAtual){
+void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador, int cpuAtual, Memoria *memoria){
     printf("Troca de contexto\n");
+    printf("IDprocesso: %d\n", processoEscalonado->idProcesso);
+    printf("Endereco inicio: %d\n", processoEscalonado->inicioMemoria);
 
     Processo *processoNaoEscalonado = &(gerenciadorProcesso->tabelaProcessos.processos[gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual]]);
     
     if(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual][0] != 'T'){
         processoNaoEscalonado->programCounter = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual;
         printf("Tempo Usado CPU: %d\n", processoNaoEscalonado->tempoUsadoCPU);
-        processoNaoEscalonado->tamanhoMemoriaDoProcesso = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].tamanhoMemoriaSimulada;
-        alocarMemoriaDoProcesso(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), processoNaoEscalonado);
+        alocarMemoriaDoProcesso(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), processoNaoEscalonado, memoria);
         alocarVetorPrograma(&(gerenciadorProcesso->vetorCPUS.processadores[cpuAtual]), processoNaoEscalonado);
+        processoNaoEscalonado->tamanhoMemoriaDoProcesso = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].tamanhoMemoriaProcessoAtual; // acho que isso resolve, o processo não escalonado é o que está na CPU no momento.
+        processoNaoEscalonado->inicioMemoria = gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].inicioMemoriaProcessoAtual;
     }
 
     if(processoNaoEscalonado->estado == BLOQUEADO && (gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual][0] != 'T')){
@@ -294,17 +331,20 @@ void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *process
     }else if(processoNaoEscalonado->estado == EM_EXECUCAO && (gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].VetorDeProgramas[gerenciadorProcesso->vetorCPUS.processadores[cpuAtual].PC_Atual][0] != 'T')){
     	if((processoNaoEscalonado->idProcesso >= 0) && (gerenciadorProcesso->vetorCPUS.cpusSendoUtilizadas == gerenciadorProcesso->vetorCPUS.numeroDeProcessadores)){
             FEnfileira(&(gerenciadorProcesso->estadoPronto.processosP), processoNaoEscalonado->idProcesso);
+            processoNaoEscalonado->estado = PRONTO;
         }else{
         	if(escalonador == ROUND_ROBIN)
         		processoEscalonado->programCounter--;
+                processoNaoEscalonado->estado = PRONTO;
         }
     }
 
     //muda o processoEscalonado para o estado de execucao
     printf("numero de processadores: %d\n", gerenciadorProcesso->vetorCPUS.numeroDeProcessadores);
     processoEscalonado->estado = EM_EXECUCAO;
+    gerenciadorProcesso->vetorCPUS.processadores[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))].inicioMemoriaProcessoAtual = processoEscalonado->inicioMemoria;
 	gerenciadorProcesso->estadoExecucao.processoExec[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))] = processoEscalonado->idProcesso;
-	alocarMemoriaCpu(&(gerenciadorProcesso->vetorCPUS.processadores[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))]), processoEscalonado);
+	copiarMemoriaCpu(memoria, processoEscalonado);
     AlocarProcesso(&gerenciadorProcesso->vetorCPUS.processadores[selecionaCPU(&(gerenciadorProcesso->vetorCPUS))], processoEscalonado);
     gerenciadorProcesso->vetorCPUS.ultimaCpuUsada = selecionaCPU(&(gerenciadorProcesso->vetorCPUS));
     if (gerenciadorProcesso->vetorCPUS.numeroDeProcessadores > 1) gerenciadorProcesso->vetorCPUS.cpusSendoUtilizadas++; // ACHO que seria aqui o momento para atualizar o número de CPUS
@@ -366,7 +406,7 @@ void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso, int cpuAtual)
 	}
 }
 
-int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int cpuAtual){
+int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int cpuAtual, Memoria *memoria){
     //processo pai inicia com prioridade 0(mais alta)
 	int idProcessoNaoEscalonado = gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual];
 
@@ -400,21 +440,21 @@ int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDeP
 
     if(processoEscalonado->prioridade == 0){
         processoEscalonado->prioridade = 1;
-        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual, memoria);
 
     }else if(processoEscalonado->prioridade == 1 && processoEscalonado->tempoUsadoCPU > 1){
         processoEscalonado->prioridade = 2;
-        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual, memoria);
 
     }else if(processoEscalonado->prioridade == 2 && processoEscalonado->tempoUsadoCPU > 3){
         processoEscalonado->prioridade = 3;
-        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual);
+        trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual, memoria);
 
     }else if(processoEscalonado->prioridade == 3 && processoEscalonado->tempoUsadoCPU > 7){
-    	trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual);
+    	trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual, memoria);
 
     }else{
-    	trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual);
+    	trocaDeContexto(gerenciadorProcesso, processoEscalonado, FILA_DE_PRIORIDADE, cpuAtual, memoria);
     }
 	return 0;
 }
@@ -449,17 +489,30 @@ int escalonamentoRoundRobin(EstadoPronto *estP, int indiceCpu, GerenciadorProces
     return indice;
 }
 
-void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador, int cpuAtual){
+void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador, int cpuAtual, Memoria *memoria){
 	switch(escalonador){
 	case FILA_DE_PRIORIDADE:
-		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade, cpuAtual);
+		escalonadorFilaPrioridade(gerenciadorProcesso, filasDePrioridade, cpuAtual, memoria);
 		break;
 	case ROUND_ROBIN:
 		int idProcessoEscalonado = escalonamentoRoundRobin(&(gerenciadorProcesso->estadoPronto), gerenciadorProcesso->estadoExecucao.processoExec[cpuAtual], gerenciadorProcesso);
 		if(idProcessoEscalonado >= 0)
-			trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]), ROUND_ROBIN, cpuAtual);
+			trocaDeContexto(gerenciadorProcesso, &(gerenciadorProcesso->tabelaProcessos.processos[idProcessoEscalonado]), ROUND_ROBIN, cpuAtual, memoria);
 		break;
 	default:
 		break;
 	}
+}
+
+VetorSegmentos getSegmentosOcupados(Memoria memoria, TabelaDeProcessos tabelaDeProcessos){
+	VetorSegmentos vetorSegmentos;
+	vetorSegmentos.segmentos = (Segmento*) malloc(sizeof(Segmento) * tabelaDeProcessos.quantidadeDeProcessos);
+	vetorSegmentos.numSegmentos = tabelaDeProcessos.quantidadeDeProcessos;
+
+	for (int i = 0; i < tabelaDeProcessos.quantidadeDeProcessos; i++) {
+		vetorSegmentos.segmentos[i].idProcesso = tabelaDeProcessos.processos[i].idProcesso;
+		vetorSegmentos.segmentos[i].posicaoInicio = tabelaDeProcessos.processos[i].inicioMemoria;
+		vetorSegmentos.segmentos[i].tamanho = tabelaDeProcessos.processos[i].tamanhoMemoriaDoProcesso;
+	}
+	return vetorSegmentos;
 }
