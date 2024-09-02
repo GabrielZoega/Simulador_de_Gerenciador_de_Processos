@@ -44,6 +44,7 @@ typedef struct processo{
     int inicioMemoria;
     int inicioDisco;
     int tempoUltimoAcessoAMemoria;
+    int estaNaMemoria; //0 pra não e 1 pra sim
 }Processo;
 
 void lerInstrucoes(Processo *processo, char *pathProcesso);

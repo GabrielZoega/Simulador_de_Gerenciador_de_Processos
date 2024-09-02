@@ -18,7 +18,7 @@
 // void Asteriscos(int cor);
 
 //Funções para a impressão
-void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso, Memoria *memoria);
+void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso, Memoria *memoria, int numeroFragmentosExternos);
 void ImprimeCPU(CPU *cpu);
 void ImprimeMemoriaSimuladaCPU(Memoria *memoria);
 void ImpressaoProcesso(Processo *processo);

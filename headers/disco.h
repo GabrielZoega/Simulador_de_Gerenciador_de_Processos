@@ -11,7 +11,10 @@ typedef struct disco{
 	int ultimaPosicao;
 }Disco;
 
-void criaDisco(Disco *disco);
-Segmento getSegmentoDeProcesso(Disco *disco, int idProcesso);
+void iniciaDisco(Disco *disco);
+Segmento retiraSegmentoDeProcesso(Disco *disco, Processo processo);
+void moveParaAMemoria(Disco *disco, Memoria *memoria, Processo *processo);
+void moveParaODisco(Disco *disco, Memoria *memoria, Processo *processo, int *movimentosParaODisco);
+VetorSegmentos getSegmentosLivresDisco(Disco *disco);
 
 #endif

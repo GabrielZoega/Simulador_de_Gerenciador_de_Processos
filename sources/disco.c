@@ -15,13 +15,44 @@ Segmento retiraSegmentoDeProcesso(Disco *disco, Processo processo){
 	return segmento;
 }
 
-void copiaParaODisco(Disco *disco, Memoria *memoria, Processo processo){
-	for(int i = 0; i < processo.tamanhoMemoriaDoProcesso; i++){
+void moveParaAMemoria(Disco *disco, Memoria *memoria, Processo *processo){
+	int i;
 
+	// Desalocando o espaço na memória para receber as variáveis do disco. (não sei se realmente precisa disso)
+	for(i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
+		memoria->vetorMemoria[i+processo->inicioMemoria] = INT_MIN;
+	}
+
+	// Copiando o conteúdo do disco para a memória.
+	for(i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
+		memoria->vetorMemoria[i+processo->inicioMemoria] = disco->vetorDisco[i+processo->inicioDisco];
+	}
+
+	// Desalocando o espaço no disco
+	for(i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
+		disco->vetorDisco[i+processo->inicioDisco] = INT_MIN;
 	}
 }
 
-VetorSegmentos getSegmentosLivres(Disco *disco){
+void moveParaODisco(Disco *disco, Memoria *memoria, Processo *processo, int *movimentosParaODisco){
+	VetorSegmentos segmentosLivres = getSegmentosLivresDisco(disco);
+	int segmentoEscolhido;
+	for (int i = 0; i < segmentosLivres.numSegmentos; i++){
+		if (segmentosLivres.segmentos[i].tamanho >= processo->tamanhoMemoriaDoProcesso){
+			segmentoEscolhido = segmentosLivres.segmentos[i].posicaoInicio;
+			processo->inicioDisco = segmentosLivres.segmentos[i].posicaoInicio;
+			break;
+		}
+	}
+	for(int i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
+		disco->vetorDisco[i + segmentoEscolhido] = memoria->vetorMemoria[i + processo->inicioMemoria];
+		memoria->vetorMemoria[i + processo->inicioMemoria] = INT_MIN;
+	}
+	processo->estaNaMemoria = 0;
+	(*movimentosParaODisco)++;
+}
+
+VetorSegmentos getSegmentosLivresDisco(Disco *disco){
 	int numSegmentosLivres = 0;
 	int ehUmNovoSegmento = 1;
 	for (int i = 0; i < TAM_DISCO; i++){

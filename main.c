@@ -1,19 +1,22 @@
 #include "headers/Pcontrole.h"
 #include "headers/gerenciadorProcessos.h"
 #include "headers/memoriaPrincipalBase.h"
+#include "headers/disco.h"
 
 int main(){
     GerenciadorProcesso gerenciadorProcesso;
     Memoria memoria;
+    Disco disco;
+    iniciaDisco(&disco);
 
-    //system("clear");
+    system("clear");
 	printf("\nDigite o tamanho desejado para a memoria: ");
 	scanf("%d", &(memoria.tamanho));
 	criaMemoria(&memoria);
 
     int tecnicaAlocacao;
 
-    //system("clear");
+    system("clear");
     printf("\nEscolha a tecnica de alocacao/desalocacao de memoria:\n\n");
 	printf("Digite '1' para usar first fit\n");
 	printf("Digite '2' para usar next fit\n");
@@ -28,7 +31,7 @@ int main(){
 		return 0;
 	}
 
-    //system("clear");
+    system("clear");
     printf("\nDigite o numero de processadores para a execucao: ");
     scanf("%d", &(gerenciadorProcesso.vetorCPUS.numeroDeProcessadores));
     CPU CPUS[gerenciadorProcesso.vetorCPUS.numeroDeProcessadores];
@@ -49,7 +52,7 @@ int main(){
     int pipeRetorno = pipe(fd);
     int opcao, escalonador;
     
-    //system("clear");
+    system("clear");
     printf("\nEscolha o escalonador para o gerenciador de processos:\n\n");
 	printf("Digite '1' para usar Fila de Prioridade\n");
 	printf("Digite '2' para usar Round Robin\n");
@@ -57,7 +60,7 @@ int main(){
 	printf("Escalonador escolhido: ");
 	scanf("%d", &escalonador);
 
-	//system("clear");
+	system("clear");
 
 	if (escalonador != FILA_DE_PRIORIDADE && escalonador != ROUND_ROBIN ){
 		printf("Programa encerrado.\n\n");
@@ -97,7 +100,7 @@ int main(){
                 
             // Processo Filho (Processo Gerenciador de Processos)
             }else{
-                gerenciarProcesso(fd, &gerenciadorProcesso, escalonador, &memoria, tecnicaAlocacao);
+                gerenciarProcesso(fd, &gerenciadorProcesso, escalonador, &memoria, &disco, tecnicaAlocacao);
             }
                 
         // leitura por arquivo
@@ -111,7 +114,7 @@ int main(){
                 
             // Processo Filho (Processo Gerenciador de Processos)
             }else{
-                gerenciarProcesso(fd, &gerenciadorProcesso, escalonador, &memoria, tecnicaAlocacao);
+                gerenciarProcesso(fd, &gerenciadorProcesso, escalonador, &memoria, &disco, tecnicaAlocacao);
             }
         }
     }else{

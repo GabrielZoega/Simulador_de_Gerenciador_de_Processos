@@ -3,7 +3,7 @@
 
 //Funções para a impressão
 
-void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso, Memoria *memoria){
+void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso, Memoria *memoria, int numeroFragmentosExternos){
 	system("clear");
     printf("\n\n" INICIO2 "╒══════════════════════════════════════════════════════╡ ESTADO DO SISTEMA ╞════════════════════════════════════════════════════════╕" FINAL "\n\n", BOLD, FUNDO_AZUL);
     printf(INICIO2 "Tempo de uso do sistema no momento atual:" FINAL" %d unidades de tempo", BOLD, UNDERLINE, gerenciadorProcesso->Tempo);
@@ -19,7 +19,9 @@ void ApresentarTudo(GerenciadorProcesso *gerenciadorProcesso, Memoria *memoria){
 	}
     ImpressaoTabelaDeProcessos(gerenciadorProcesso);
     ImprimeMemoriaSimuladaCPU(memoria);
-
+    printf("\n\n" INICIO3 "Numero medio de fragmentos externos: %.2f" FINAL "\n", BOLD, UNDERLINE, VERDE, ((float)numeroFragmentosExternos)/((float)gerenciadorProcesso->Tempo));
+    printf("\n\n" INICIO3 "Tempo medio de alocacao: %.2f" FINAL "\n", BOLD, UNDERLINE, AZUL, ((float)gerenciadorProcesso->numeroNosPercorridos)/((float)gerenciadorProcesso->numeroAlocacoes));
+    printf("\n\n" INICIO3 "Vezes que um processo teve que ser levado para o \"disco\": %d" FINAL "\n", BOLD, UNDERLINE, AMARELO, gerenciadorProcesso->movimentosParaODisco);
 
 }
 void ImpressaoEstadosBloqueados(GerenciadorProcesso *gerenciadorProcesso){
