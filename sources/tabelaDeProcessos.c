@@ -1,5 +1,6 @@
 #include "../headers/tabelaDeProcessos.h"
 
+// Recupera todos os segmentos da memória que estão ocupados
 VetorSegmentos getSegmentosOcupados(Memoria memoria, TabelaDeProcessos tabelaDeProcessos){
 	VetorSegmentos vetorSegmentos;
 	vetorSegmentos.segmentos = (Segmento*) malloc(sizeof(Segmento) * tabelaDeProcessos.quantidadeDeProcessos);
@@ -16,6 +17,7 @@ VetorSegmentos getSegmentosOcupados(Memoria memoria, TabelaDeProcessos tabelaDeP
 	return vetorSegmentos;
 }
 
+// Retira um processo da Memória e move-o para o disco.
 void retiraProcessosDaMemoria(Disco *disco, Memoria *memoria, TabelaDeProcessos *tabelaDeProcessos, int tamanhoParaRetirar, int *movimentosParaODisco){
     VetorSegmentos segmentosOcupados;
     int idProcessoMaisVelho;

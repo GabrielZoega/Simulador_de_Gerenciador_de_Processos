@@ -1,5 +1,6 @@
 #include "../headers/memoriaPrincipalBase.h"
 
+// Inicializa a memória principal
 void criaMemoria(Memoria *memoria){
 	memoria->ultimaPosicao = 0;
 	memoria->vetorMemoria =  (int*) malloc(sizeof(int) * memoria->tamanho);
@@ -8,6 +9,7 @@ void criaMemoria(Memoria *memoria){
 	}
 }
 
+// Retorna um vetor de segmentos livres da memória.
 VetorSegmentos getSegmentosLivres(Memoria *memoria){
 	int numSegmentosLivres = 0;
 	int ehUmNovoSegmento = 1;
@@ -25,8 +27,7 @@ VetorSegmentos getSegmentosLivres(Memoria *memoria){
 	vetorSegmentos.segmentos = (Segmento*) malloc(sizeof(Segmento) * numSegmentosLivres);
 	vetorSegmentos.numSegmentos = numSegmentosLivres;
 
-// guarda os tamanhos de cada segmento e suas respectivas posicoes
-
+	// guarda os tamanhos de cada segmento e suas respectivas posicoes
 	numSegmentosLivres = 0;
 	ehUmNovoSegmento = 1;
 	for (int i = 0; i < memoria->tamanho; i++) {

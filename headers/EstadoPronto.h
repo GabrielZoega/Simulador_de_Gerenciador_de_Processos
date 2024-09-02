@@ -3,6 +3,7 @@
 
 #include "fila.h"
 
+// Fila dos processos Prontos
 typedef struct EstadoPronto {
     TFila processosP;
 } EstadoPronto;

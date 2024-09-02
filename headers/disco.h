@@ -6,6 +6,7 @@
 
 #define TAM_DISCO 500
 
+// Vetor de 500 posições representando o disco.
 typedef struct disco{
 	int vetorDisco[TAM_DISCO];
 	int ultimaPosicao;

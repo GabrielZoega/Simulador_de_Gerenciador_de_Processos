@@ -26,6 +26,7 @@ void nextFit(Memoria *memoria, int tamanhoProcesso, int *ultimaPosicao, int *end
         (*numeroNosPercorridos)++;
         posicaoInicio = *ultimaPosicao;
         controle = achaLacuna(memoria, &posicaoInicio, &lacuna);
+        // Verifica se a lacuna encontrada cabe o processo
         if (lacuna >= tamanhoProcesso){
             *(enderecoInicio) = posicaoInicio;
             break;
@@ -36,7 +37,7 @@ void nextFit(Memoria *memoria, int tamanhoProcesso, int *ultimaPosicao, int *end
         }
 
         if(controle == 0){
-            printf("Não há espaço para o processo!\n");
+            // Retira um processo da memória caso nenhuma lacuna tenha sido encontrada
             retiraProcessosDaMemoria(disco, memoria, tabelaDeProcessos, tamanhoProcesso, movimentosParaODisco);
             *ultimaPosicao = 0;
             controle = 1;

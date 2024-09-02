@@ -1,5 +1,6 @@
 #include "../headers/firstFit.h"
 
+// Acha uma lacuna na memória
 int achaLacunaFF(Memoria *memoria, int *posicaoInicio, int *lacuna){
     *lacuna = 0;
     for(int c = *posicaoInicio; c < memoria->tamanho; c++){
@@ -26,8 +27,7 @@ void firstFit(Memoria *memoria, int tamanhoProcesso, int *enderecoInicio, Tabela
     while(controle == 1){
         (*numeroNosPercorridos)++;
         controle = achaLacunaFF(memoria, &posicaoInicio, &lacuna);
-        printf("Tamanho da lacuna: %d\n", lacuna);
-        printf("Posicao Inicial: %d\n", posicaoInicio);
+        // Confere se a coluna encontrada cabe o processo
         if (lacuna >= tamanhoProcesso){
             *(enderecoInicio) = posicaoInicio;
             break;
@@ -38,7 +38,7 @@ void firstFit(Memoria *memoria, int tamanhoProcesso, int *enderecoInicio, Tabela
         }
     }
     if(controle == 0){
-        printf("Não há espaço para o processo!\n");
+        // Retira um processo da memória caso nenhuma lacuna tenha sido encontrada
         retiraProcessosDaMemoria(disco, memoria, tabelaDeProcessos, tamanhoProcesso, movimentosParaODisco);
         controle = 1;
         return;

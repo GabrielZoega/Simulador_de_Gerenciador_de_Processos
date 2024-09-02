@@ -7,6 +7,7 @@ void iniciaDisco(Disco *disco){
 	}
 }
 
+// Retira algumas informações de um segmento do processo.
 Segmento retiraSegmentoDeProcesso(Disco *disco, Processo processo){
 	Segmento segmento;
 	segmento.idProcesso = processo.idProcesso;
@@ -15,6 +16,7 @@ Segmento retiraSegmentoDeProcesso(Disco *disco, Processo processo){
 	return segmento;
 }
 
+// Move um processo do Disco para a memória
 void moveParaAMemoria(Disco *disco, Memoria *memoria, Processo *processo){
 	int i;
 
@@ -34,6 +36,7 @@ void moveParaAMemoria(Disco *disco, Memoria *memoria, Processo *processo){
 	}
 }
 
+// Move um processo da memória para o disco
 void moveParaODisco(Disco *disco, Memoria *memoria, Processo *processo, int *movimentosParaODisco){
 	VetorSegmentos segmentosLivres = getSegmentosLivresDisco(disco);
 	int segmentoEscolhido;
@@ -52,6 +55,7 @@ void moveParaODisco(Disco *disco, Memoria *memoria, Processo *processo, int *mov
 	(*movimentosParaODisco)++;
 }
 
+// Seleciona um vetor de segmentos livros de um disco
 VetorSegmentos getSegmentosLivresDisco(Disco *disco){
 	int numSegmentosLivres = 0;
 	int ehUmNovoSegmento = 1;
@@ -69,8 +73,7 @@ VetorSegmentos getSegmentosLivresDisco(Disco *disco){
 	vetorSegmentos.segmentos = (Segmento*) malloc(sizeof(Segmento) * numSegmentosLivres);
 	vetorSegmentos.numSegmentos = numSegmentosLivres;
 
-// guarda os tamanhos de cada segmento e suas respectivas posicoes
-
+	// guarda os tamanhos de cada segmento e suas respectivas posicoes
 	numSegmentosLivres = 0;
 	ehUmNovoSegmento = 1;
 	for (int i = 0; i < TAM_DISCO; i++) {

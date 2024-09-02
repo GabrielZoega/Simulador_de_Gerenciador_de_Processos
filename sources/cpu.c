@@ -7,12 +7,14 @@ void inicializaCPU(CPU *cpu){
     cpu->cpuOcupada = DESOCUPADA;
 }
 
+// Aloca o Vetor Programa e inicializa algumas variáveis
 void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
 	int i = 0;
     cpu->idprocesso = novoprocesso->idProcesso; //id do processo em execução
     cpu->PC_Atual = novoprocesso->programCounter; //PC atualizado
     cpu->FatiaQuantum = 0;
 
+    // Verifica de o vetor de programa da CPU é nulo. Caso não seja, libera ele.
     if(cpu->VetorDeProgramas != NULL){
 		int i;
 		for(i = 1; strcmp(cpu->VetorDeProgramas[i-1], "T") != 0; i++);
@@ -21,6 +23,7 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
 		cpu->VetorDeProgramas = NULL;
 	}
 
+    // Alocando o vetor de programa da CPU
     for(i = 1; novoprocesso->vetorPrograma[i-1][0] != 'T'; i++);
     cpu->VetorDeProgramas = (char**) malloc (sizeof(char*) * i);
     for (int j = 0; j < i; j++)
@@ -37,26 +40,13 @@ void AlocarProcesso(CPU *cpu, Processo *novoprocesso){
 void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo, Memoria *memoria){
     processo->tamanhoMemoriaDoProcesso = cpu->tamanhoMemoriaProcessoAtual;
     processo->memoriaDoProcesso = NULL;
-	processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * processo->tamanhoMemoriaDoProcesso); //esse tamanho foi colocado na troca de contexto antes da chamada da função.
-	for(int i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){ // aqui o for tem o tamanho do processo pois a memória tem um tamanho maior.
+	processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * processo->tamanhoMemoriaDoProcesso);
+	for(int i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
 		processo->memoriaDoProcesso[i] = memoria->vetorMemoria[i+cpu->inicioMemoriaProcessoAtual]; // soma o endereço do inicio do processo que está na cpu.
 	}
 }
 
-// Declaração Antiga
-// //Coloca o que esta na cpu no processo
-// void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo){
-// 	if(cpu->MemoriaSimulada != NULL){
-// 		processo->memoriaDoProcesso = (int*) malloc(sizeof(int) * cpu->tamanhoMemoriaSimulada);
-// 		processo->tamanhoMemoriaDoProcesso = cpu->tamanhoMemoriaSimulada;
-// 		for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
-// 			processo->memoriaDoProcesso[i] = cpu->MemoriaSimulada[i];
-// 		}
-// 	}
-// }
-
-// TODO: pensar se ainda vamos precisar dessa instrução (Talvez seja necessário caso a gente tire algum processo da memória principal e depois precise colocar lá de novo)
-// Pega o que está no processo e coloca na CPU (caso precise, fazer isso usando o Next fit tbm?)
+// Copia o contéudo da memória principal para o processo
 void copiarMemoriaCpu(Memoria *memoria, Processo *processo){
     printf("Tamanho Memoria Processo: %d\n", processo->tamanhoMemoriaDoProcesso);
     printf("Inicio Memoria Processo: %d\n", processo->inicioMemoria);
@@ -67,20 +57,6 @@ void copiarMemoriaCpu(Memoria *memoria, Processo *processo){
  	}
 }
 
-// Declaração Antiga
-// void alocarMemoriaCpu(CPU *cpu, Processo *processo){
-// 	if(processo->memoriaDoProcesso != NULL){
-// 		if(cpu->MemoriaSimulada != NULL){
-// 			free(cpu->MemoriaSimulada);
-// 			cpu->MemoriaSimulada = NULL;
-// 		}
-// 		cpu->MemoriaSimulada = (int*) malloc(sizeof(int) * processo->tamanhoMemoriaDoProcesso);
-// 		cpu->tamanhoMemoriaSimulada = processo->tamanhoMemoriaDoProcesso;
-// 		for(int i = 0; i < cpu->tamanhoMemoriaSimulada; i++){
-// 			cpu->MemoriaSimulada[i] = processo->memoriaDoProcesso[i];
-// 		}
-// 	}
-// }
 
 void alocarVetorPrograma(CPU *cpu, Processo *processo){
 

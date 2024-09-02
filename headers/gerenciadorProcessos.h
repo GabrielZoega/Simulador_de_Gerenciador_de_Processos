@@ -23,6 +23,7 @@
 #define BESTFIT 3
 #define WORSTFIT 4
 
+// Filas de Prioridade para o escalonador
 typedef struct filasDePrioridade{
 	TFila prioridade0;
 	TFila prioridade1;
@@ -37,31 +38,10 @@ typedef struct gerenciadorProcesso{
     EstadoPronto estadoPronto;
     EstadoBloqueado estadoBloqueado;
     EstadoExecucao estadoExecucao;
-    int movimentosParaODisco;
-    int numeroNosPercorridos;
+    int movimentosParaODisco;           // Número de Vezes que um processo precisou ser levado para o disco
+    int numeroNosPercorridos;           // Numero de posições percorridas durante as alocações de memória
     int numeroAlocacoes;
 } GerenciadorProcesso;
-
-// Declarações Antigas
-// void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador);
-// void init(Processo *processoSimulado, char *path, int *IDS);
-// void executaInstrucao(GerenciadorProcesso *gerenciadorProcesso, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
-// void instrucaoN(CPU *cpu, int n);
-// void instrucaoD(CPU *cpu, int x);
-// void instrucaoV(CPU *cpu, int x, int n);
-// void instrucaoA(CPU *cpu, int x, int n);
-// void instrucaoS(CPU *cpu, int x, int n);
-// void instrucaoB(GerenciadorProcesso* gerenciadorProcesso, int n, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
-// void instrucaoT(GerenciadorProcesso* gerenciadorProcesso, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
-// void instrucaoF(GerenciadorProcesso* gerenciadorProcesso, int n, int *IDS, int escalonador, FilasDePrioridade *filasDePrioridade, int cpuAtual);
-// void instrucaoR(GerenciadorProcesso* gerenciadorProcesso, char *nome_do_arquivo, int *IDS, int escalonador, int cpuAtual);
-// void trocaDeContexto(GerenciadorProcesso *gerenciadorProcesso, Processo *processoEscalonado, int escalonador, int cpuAtual);
-// void desbloqueiaProcessos(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade);
-// void confereFatiaQuantum(GerenciadorProcesso *gerenciadorProcesso, int cpuAtual);
-// int escalonadorFilaPrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int cpuAtual);
-// void enfileiraFilaDePrioridade(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int idProcesso);
-// int escalonamentoRoundRobin(EstadoPronto*estP, int indiceCpu, GerenciadorProcesso *gerenciadorProcesso);
-// void decideEscalonador(GerenciadorProcesso *gerenciadorProcesso, FilasDePrioridade *filasDePrioridade, int escalonador, int cpuAtual);
 
 void gerenciarProcesso(int *fd, GerenciadorProcesso *gerenciadorProcesso, int escalonador, Memoria *memoria, Disco *disco, int tecnicaAlocacao);
 void init(Processo *processoSimulado, char *path, int *IDS);
