@@ -4,8 +4,9 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+// Vetor com os ids dos processos em Execução
 typedef struct EstadoExecucao {
-    int processoExec;
+    int *processoExec;
 } EstadoExecucao;
 
 #endif
