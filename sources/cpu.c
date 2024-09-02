@@ -48,8 +48,6 @@ void alocarMemoriaDoProcesso(CPU *cpu, Processo *processo, Memoria *memoria){
 
 // Copia o contéudo da memória principal para o processo
 void copiarMemoriaCpu(Memoria *memoria, Processo *processo){
-    printf("Tamanho Memoria Processo: %d\n", processo->tamanhoMemoriaDoProcesso);
-    printf("Inicio Memoria Processo: %d\n", processo->inicioMemoria);
  	if(processo->memoriaDoProcesso != NULL){
  		for(int i = 0; i < processo->tamanhoMemoriaDoProcesso; i++){
  			memoria->vetorMemoria[i+processo->inicioMemoria] = processo->memoriaDoProcesso[i];
