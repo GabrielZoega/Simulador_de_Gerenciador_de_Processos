@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "processoSimulado.h"
-#include "disco.h"
 
 // A tabela de Processos é um vetor de Processos
 typedef struct tabelaDeProcessos {
@@ -12,7 +11,6 @@ typedef struct tabelaDeProcessos {
     int quantidadeDeProcessos;
 }TabelaDeProcessos;
 
-void retiraProcessosDaMemoria(Disco *disco, Memoria *memoria, TabelaDeProcessos *tabelaDeProcessos, int tamanhoParaRetirar, int *movimentosParaODisco);
-VetorSegmentos getSegmentosOcupados(Memoria memoria, TabelaDeProcessos tabelaDeProcessos);
+void iniciaTabela(TabelaDeProcessos *tabelaDeProcessos);
 
 #endif

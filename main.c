@@ -44,7 +44,6 @@ int main(){
     for(i = 0; i < gerenciadorProcesso.vetorCPUS.numeroDeProcessadores; i++){
         inicializaCPU(&(gerenciadorProcesso.vetorCPUS.processadores[i]));
         EXEC[i] = -1;
-        //if (gerenciadorProcesso.vetorCPUS.processadores[i].MemoriaSimulada == NULL) printf("NULL\n");
     }
 
     int fd[2]; // File descriptors pro Pipe
@@ -80,7 +79,7 @@ int main(){
         return 0;
     }
 
-    // Criando nosso Pipe
+    // Criando o Pipe
     if(pipeRetorno >= 0){
        
         // Criando o processo filho
